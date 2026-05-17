@@ -1,0 +1,106 @@
+# GitHub Release workflow：tag push 触发 → 用 Secrets 里的 keystore 签 release
+# APK + AAB → 抽 CHANGELOG 当 release notes → 创建 GitHub Release 附 artifact。
+#
+# 触发：git push origin v0.9.0（v* tag）。
+# 配置依赖：4 个 GitHub Secrets（RELEASE_KEYSTORE_BASE64 / RELEASE_STORE_PASSWORD
+# / RELEASE_KEY_PASSWORD / RELEASE_KEY_ALIAS），见 RELEASE.md §1.5。
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # v0.9.0 / v1.0.0 / v1.0.0-rc1 等
+
+permissions:
+  contents: write  # 创建 GitHub Release 需要
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 拉全历史，让 release notes 能跟前一 tag 比对
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 12266719
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'gradle/libs.versions.toml') }}
+
+      - name: Decode keystore + 写 keystore.properties
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+          # keystore.properties 内引用文件绝对路径——跟 RELEASE.md §2 同款 schema
+          {
+            echo "storeFile=$RUNNER_TEMP/release.keystore"
+            echo "storePassword=$STORE_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > keystore.properties
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build signed release APK + AAB
+        run: ./gradlew :app:assembleRelease :app:bundleRelease
+
+      - name: Verify APK signature
+        run: |
+          # build-tools/*/apksigner 路径里取最新的一个
+          APKSIGNER=$(ls -1 $ANDROID_HOME/build-tools/*/apksigner | tail -n 1)
+          "$APKSIGNER" verify --verbose --print-certs \
+            app/build/outputs/apk/release/app-release.apk
+
+      - name: Extract release notes from CHANGELOG
+        id: notes
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          version="${tag#v}"  # v0.9.0 → 0.9.0
+          python3 <<PY > /tmp/release-notes.md
+          import re, sys
+          version = "$version"
+          content = open('CHANGELOG.md', encoding='utf-8').read()
+          # 匹配 "## [<version>]" 到下一个 "## " 或文件末尾
+          pattern = rf'## \[{re.escape(version)}\].*?(?=\n## |\Z)'
+          m = re.search(pattern, content, re.S)
+          print(m.group(0) if m else f'See CHANGELOG.md for v{version} details.')
+          PY
+          echo "==== release notes ===="
+          cat /tmp/release-notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: /tmp/release-notes.md
+          files: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/bundle/release/app-release.aab
+          draft: false
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') || contains(github.ref, '-alpha') }}
+          # 不让 GitHub 自动生成 release notes（基于 commit 列表）；用 CHANGELOG 段
+          generate_release_notes: false
+
+      - name: Clean up secrets
+        if: always()
+        run: |
+          rm -f keystore.properties "$RUNNER_TEMP/release.keystore" /tmp/release-notes.md
