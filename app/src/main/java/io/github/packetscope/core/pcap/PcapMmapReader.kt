@@ -82,7 +82,7 @@ class PcapMmapReader(channel: FileChannel) : AutoCloseable {
                 timestampNanos = tsNanos,
                 capturedLength = capLen,
                 originalLength = origLen,
-                data = data,
+                data = HeapBytes(data),
             ))
             cursor = bodyStart + capLen
         }

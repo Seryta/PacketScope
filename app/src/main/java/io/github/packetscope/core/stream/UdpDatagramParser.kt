@@ -1,6 +1,7 @@
 package io.github.packetscope.core.stream
 
 import io.github.packetscope.core.pcap.ByteReader
+import io.github.packetscope.core.pcap.HeapBytes
 import io.github.packetscope.core.pcap.LinkType
 import io.github.packetscope.core.pcap.RawFrame
 import java.io.IOException
@@ -84,7 +85,7 @@ class UdpDatagramParser {
             timestampNanos = ts,
             capturedLength = incLen,
             originalLength = origLen,
-            data = body,
+            data = HeapBytes(body),
         )
     }
 

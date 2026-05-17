@@ -67,7 +67,7 @@ class UdpDatagramParserTest {
         assertEquals(1, raw.index)
         assertEquals(6, raw.capturedLength)
         assertEquals(6, raw.originalLength)
-        assertArrayEquals(byteArrayOf(0x45, 0x00, 0x00, 0x14, 0x42, 0x42), raw.data)
+        assertArrayEquals(byteArrayOf(0x45, 0x00, 0x00, 0x14, 0x42, 0x42), raw.data.asByteArray())
     }
 
     @Test

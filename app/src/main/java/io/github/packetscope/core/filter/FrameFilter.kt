@@ -199,7 +199,7 @@ sealed interface FrameFilter {
      *  注：未索引化（O(n × frame_size)），大列表上注意性能。 */
     data class Text(val pattern: String) : FrameFilter {
         override fun matches(frame: Frame, index: FilterIndex?): Boolean =
-            String(frame.data, Charsets.ISO_8859_1).contains(pattern, ignoreCase = true)
+            frame.data.decodeToString(Charsets.ISO_8859_1).contains(pattern, ignoreCase = true)
     }
 
     data class And(val left: FrameFilter, val right: FrameFilter) : FrameFilter {

@@ -29,6 +29,24 @@ object ByteReader {
             ((data[offset + 2].toLong() and 0xFF) shl 16) or
             ((data[offset + 3].toLong() and 0xFF) shl 24)
 
+    // === FrameBytes 重载（LAZY-001 Phase 1） ===
+    // pass 层（TcpReassembler / TcpSessionAnalyzer）直接吃 frame.data，避免
+    // 仅为读 2-4 字节就 asByteArray() 整帧——MmapBytes 路径会触发拷贝。
+    // 单字节访问通过 FrameBytes.get（HeapBytes 零开销，MmapBytes 一次 ByteBuffer.get）。
+
+    fun u8(data: FrameBytes, offset: Int): Int =
+        data[offset].toInt() and 0xFF
+
+    fun u16Be(data: FrameBytes, offset: Int): Int =
+        ((data[offset].toInt() and 0xFF) shl 8) or
+            (data[offset + 1].toInt() and 0xFF)
+
+    fun u32Be(data: FrameBytes, offset: Int): Long =
+        ((data[offset].toLong() and 0xFF) shl 24) or
+            ((data[offset + 1].toLong() and 0xFF) shl 16) or
+            ((data[offset + 2].toLong() and 0xFF) shl 8) or
+            (data[offset + 3].toLong() and 0xFF)
+
     /** 6 字节 MAC 地址格式化为 "aa:bb:cc:dd:ee:ff" */
     fun mac(data: ByteArray, offset: Int): String =
         (0 until 6).joinToString(":") {

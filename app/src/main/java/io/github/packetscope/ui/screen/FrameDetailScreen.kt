@@ -68,6 +68,7 @@ import androidx.compose.ui.window.DialogProperties
 import io.github.packetscope.R
 import io.github.packetscope.core.pcap.Field
 import io.github.packetscope.core.pcap.Frame
+import io.github.packetscope.core.pcap.FrameBytes
 import io.github.packetscope.core.pcap.Layer
 import io.github.packetscope.core.pcap.Protocols
 
@@ -696,7 +697,7 @@ private const val BYTES_PER_ROW = 8
  * 整行只产 **1 个** Text 节点（UX 反馈：hex dump 展开后变卡）。
  */
 @Composable
-private fun HexRow(data: ByteArray, start: Int, selectedRange: IntRange?) {
+private fun HexRow(data: FrameBytes, start: Int, selectedRange: IntRange?) {
     val annotated = remember(data, start, selectedRange) {
         buildHexRow(data, start, selectedRange)
     }
@@ -722,7 +723,7 @@ private fun HexRow(data: ByteArray, start: Int, selectedRange: IntRange?) {
  * 选中字节段在 hex 和 ascii 两处都加 SpanStyle background 高亮。
  */
 private fun buildHexRow(
-    data: ByteArray,
+    data: FrameBytes,
     start: Int,
     selectedRange: IntRange?,
 ): AnnotatedString = buildAnnotatedString {

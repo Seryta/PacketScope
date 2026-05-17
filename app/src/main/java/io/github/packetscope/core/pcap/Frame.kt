@@ -5,7 +5,7 @@ package io.github.packetscope.core.pcap
  *
  * **equals/hashCode 设计说明**（review v0.6-round1 F-007）：
  * 这是 data class 但 equals 改为身份比较（this === other），hashCode 用
- * index。原因是 [data] 是 ByteArray，data class 默认 equals 会逐字节比较，
+ * index。原因是 [data] 在 v1.1 前是 ByteArray，data class 默认 equals 会逐字节比较，
  * 把 Frame 放进 HashMap / HashSet 时巨大开销；而且 Compose [SnapshotStateList]
  * 内部用 equals 判断是否变更，逐字节比较反而引起不必要 recompose。
  * 我们仍依赖 [copy()] 在 TcpSessionAnalyzer / TlsDecryptionPass 中产生加了
@@ -15,7 +15,8 @@ package io.github.packetscope.core.pcap
  * @property timestampNanos 自 epoch 的纳秒时间戳
  * @property capturedLength 实际抓到的字节数（== data.size）
  * @property originalLength 网线上的原始字节数（可能 > capturedLength，如果 snaplen 截断）
- * @property data 原始字节，layers 中所有 byteRange 都相对这块数据
+ * @property data 原始字节抽象（[FrameBytes]），layers 中所有 byteRange 都相对这块数据；
+ *   v1.1 LAZY-001 把它从 ByteArray 抽象成 FrameBytes，mmap 路径可零拷贝持视图
  * @property layers 解析出的协议层，从外到内（L2 → L7）
  */
 data class Frame(
@@ -23,7 +24,7 @@ data class Frame(
     val timestampNanos: Long,
     val capturedLength: Int,
     val originalLength: Int,
-    val data: ByteArray,
+    val data: FrameBytes,
     val layers: List<Layer>,
 ) {
     /** 最外层协议名简称，用于列表显示。PCAPdroid metadata 是元数据不算协议，跳过 */

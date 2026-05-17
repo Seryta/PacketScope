@@ -80,7 +80,11 @@ object QuicInitialPass {
      * 用 runCatching 一把吞掉所有边界异常 / null 校验失败，简化数十个 ?: return。
      */
     private fun parseQuicInitialOffsets(frame: Frame, quic: Layer): QuicPacketInfo? =
-        runCatching { tryParseInitial(frame.data, quic.byteRange.first) }.getOrNull()
+        // tryParseInitial 内部用 ByteArray + readVarInt 局部 helper；为不展开整条 QUIC
+        // 解析链到 FrameBytes，这里 asByteArray() 一次性桥接。HeapBytes 零拷贝；
+        // Phase 2 MmapBytes 路径会触发整帧 copy，QUIC Initial 仅在握手包出现，频率低。
+        // 若 Phase 5 真机数据显示是热点再单独转换（LAZY-006 范围）。
+        runCatching { tryParseInitial(frame.data.asByteArray(), quic.byteRange.first) }.getOrNull()
 
     private fun tryParseInitial(data: ByteArray, start: Int): QuicPacketInfo? {
         require(start + 7 <= data.size)

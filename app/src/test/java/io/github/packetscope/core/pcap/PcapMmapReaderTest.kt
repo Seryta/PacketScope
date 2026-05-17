@@ -51,7 +51,8 @@ class PcapMmapReaderTest {
             assertEquals("frame $i caplen", s.capturedLength, m.capturedLength)
             assertEquals("frame $i origlen", s.originalLength, m.originalLength)
             assertEquals("frame $i ts", s.timestampNanos, m.timestampNanos)
-            assertTrue("frame $i data", s.data.contentEquals(m.data))
+            assertTrue("frame $i data",
+                s.data.asByteArray().contentEquals(m.data.asByteArray()))
         }
     }
 

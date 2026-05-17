@@ -67,7 +67,7 @@ class PcapReader(private val input: InputStream) : AutoCloseable {
                     timestampNanos = ts,
                     capturedLength = capturedLen,
                     originalLength = originalLen,
-                    data = data,
+                    data = HeapBytes(data),
                 )
             )
         }
@@ -109,7 +109,7 @@ class RawFrame(
     val timestampNanos: Long,
     val capturedLength: Int,
     val originalLength: Int,
-    val data: ByteArray,
+    val data: FrameBytes,
 ) {
     override fun toString(): String =
         "RawFrame(index=$index, capLen=$capturedLength, origLen=$originalLength)"

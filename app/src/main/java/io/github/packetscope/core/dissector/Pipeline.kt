@@ -35,13 +35,19 @@ class Pipeline(linkType: LinkType) {
         var dissector = rootDissector
         var offset = 0
 
+        // dissector signature 仍是 (data: ByteArray, offset: Int)（LAZY-006 才动）。
+        // Phase 1 在 Pipeline 入口短暂材料化整帧 ByteArray 给 dissector / trailer。
+        // HeapBytes 路径下 asByteArray() 零拷贝；MmapBytes（Phase 2 后）会触发一次
+        // copy，但 frame.data 持久化仍是 FrameBytes 视图，不留 ByteArray 在 Frame 上。
+        val dataBytes: ByteArray = raw.data.asByteArray()
+
         // PCAPdroid 在 dump_extensions 模式下追加 32 字节 trailer；
         // dissect 时用裁短版避免污染 TCP/UDP payload 长度。byteRange 不需要调整
         // 因为 dissectData[i] 就是 raw.data[i]，只是末尾裁短了。
-        val trailer = PcapdroidTrailerDecoder.tryDecode(raw.data)
+        val trailer = PcapdroidTrailerDecoder.tryDecode(dataBytes)
         val dissectData = if (trailer != null)
-            raw.data.copyOfRange(0, raw.data.size - PcapdroidTrailerDecoder.SIZE)
-        else raw.data
+            dataBytes.copyOfRange(0, dataBytes.size - PcapdroidTrailerDecoder.SIZE)
+        else dataBytes
 
         if (dissector != null) {
             var result: DissectResult? = dissector.dissect(dissectData, offset)
@@ -64,10 +70,10 @@ class Pipeline(linkType: LinkType) {
 
         // 挂 PCAPdroid metadata layer（放最后，作为「这一帧来自哪个 app」展示）
         if (trailer != null) {
-            val trailerStart = raw.data.size - PcapdroidTrailerDecoder.SIZE
+            val trailerStart = dataBytes.size - PcapdroidTrailerDecoder.SIZE
             layers += Layer(
                 protocol = Protocols.PCAPDROID_META,
-                byteRange = trailerStart..(raw.data.size - 1),
+                byteRange = trailerStart..(dataBytes.size - 1),
                 fields = listOf(
                     Field("Magic", "0x01072021", trailerStart..(trailerStart + 3)),
                     Field("UID", trailer.uid.toString(),
