@@ -10,21 +10,54 @@ README Roadmap 表 + `app/build.gradle.kts` `versionCode` 三处同步——
 
 ## [Unreleased]
 
+> 本段汇总 v1.1 round 0 + round 1 全部已落地工作。tag `v1.1.0`
+> 触发 release workflow 时，把 `[Unreleased]` 改成 `[1.1.0] - YYYY-MM-DD`
+> 并同步 `app/build.gradle.kts`（versionCode 13 → 14、versionName
+> 0.9.0 → 1.1.0）和 README「当前状态」/Roadmap。详见 RELEASE.md §6。
+
 ### Added
-- **True lazy `Frame.data`**（v1.1 LAZY-001~005）：mmap 路径下 Frame.data
-  改成 `MmapBytes` 视图（`(parent ByteBuffer, offset, length)`），zero-copy
-  访问。`FrameBytes` sealed interface 同时保留 `HeapBytes`（InputStream
-  路径 / PCAPdroid UDP listener）实现，dissector signature 不动
+- **True lazy `Frame.data`**（v1.1 round0 LAZY-001~005）：mmap 路径下
+  Frame.data 改成 `MmapBytes` 视图（`(parent ByteBuffer, offset, length)`），
+  zero-copy 访问；`FrameBytes` sealed interface 同时保留 `HeapBytes`
+  实现给 InputStream 路径 / PCAPdroid UDP listener 用，dissector
+  signature 不动。同等 PCAP 加载后 heap 占用预期下降 ~50%——raw bytes
+  不再压堆，仅元数据 (layers / fields / FilterIndex) 留在堆上
 - **`PcapHandle` 显式 mmap 生命周期**：`PcapLoader.Result.Success` 持
   handle，AppScreen 用 `DisposableEffect(handle)` 在 state 切换时显式
-  unmap 旧 mmap，避免连续打开多个 PCAP 时 vmem 累积
-- `MemoryProfileTest`：JVM 侧验证 mmap 路径 frame.data 是 MmapBytes 视图
-  + heap 增量 < 文件 50%；QA_CHECKLIST §N.1 补真机 `dumpsys meminfo`
-  流程
+  触发 `reader.tryExplicitUnmap()`（reflection 调 `MappedByteBuffer.cleaner`），
+  避免连续打开多个 PCAP 时 vmem 累积；reflection 失败时 fallback 到 GC
+  + finalizer，跟 v0.9 之前一致不会更差
+- **`ByteReader` FrameBytes 重载**（u8 / u16Be / u32Be）：pass 层
+  （TcpReassembler / TcpSessionAnalyzer）直接吃 `frame.data` 读 2-4 字节，
+  不需要 `asByteArray()` 整帧——lazy 收益的关键放大器
+- `MemoryProfileTest` (v1.1 round1 F-004 扩展)：JVM 侧验证
+  - mmap 路径 `frame.data is MmapBytes`（零拷贝视图）
+  - InputStream 路径 `frame.data is HeapBytes`（对照路径行为不变）
+  - mmap 加载 1.5 MB PCAP heap 增量 < 文件 50%
+  - **Pipeline.process 后 Frame.data 仍持 MmapBytes 视图**（验 Pipeline
+    内 asByteArray() 中间变量没意外泄漏进 Frame）
+- `PcapHandleTest` (v1.1 round0 LAZY-003)：onClose 调一次 / 重复 close
+  idempotent / 未 close 时不触发
+- QA_CHECKLIST §N.1 大文件 + lazy mmap heap 档案段：真机 `adb shell
+  dumpsys meminfo` 流程 + Dalvik / Native Heap 期望档案 + 1 GB / 5 个
+  PCAP 连开的验收点
+- ANDROID_PITFALLS §大文件 / mmap（3 条新 P-NN 入库）：
+  - **P-20** 单 MappedByteBuffer 上限 `Int.MAX_VALUE` (~2.1 GB)，> 2 GB
+    要多段 mmap
+  - **P-21** `MappedByteBuffer` 无标准 unmap API，reflection + GC 兜底
+  - **P-22** lazy mmap unmap 与背景线程读 frame.data 的 race（v1.1
+    round1 F-001 已知风险点；任何未来加 LaunchedEffect 异步读 frame.data
+    的 PR 必读）
 
 ### Changed
 - 单次加载体积上限 **500 MB → 1 GB**（lazy refactor 让 raw bytes 不再
   占 heap；2 GB 需要多段 mmap，留 v2.0）
+- README + README.zh-CN Roadmap 表：v1.0 ✅（公开仓库收尾）+ v1.1 ✅
+  （lazy + 1 GB）+ v2.0 ⏭️（多段 mmap + metadata streaming）
+
+### Fixed
+- `PcapHandle.close()` 用 `AtomicBoolean.compareAndSet` 替原 `@Volatile` +
+  check-then-set，保证 `onClose` 严格 exactly-once（v1.1 round1 F-002）
 
 ## [0.9.0] - 2026-05-17
 
