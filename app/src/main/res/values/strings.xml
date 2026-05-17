@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Default locale resources (English). Android falls back to this file when
+  the device locale doesn't match a more specific values-<lang>/ folder.
+  See res/values-zh/strings.xml for Simplified Chinese.
+
+  DuplicateStrings 容忍说明：本文件存在若干 key 共享同一词面值但语义/上下文
+  不同（如 header_protocol vs filter_section_protocols、action_stop_listen vs
+  notif_action_stop）。这是 i18n 灵活性保留——未来翻译时可能需要按上下文分化
+  语调（按钮 vs 节标题 vs 通知 action label）。lint 的 DuplicateStrings 在这
+  几条 key 上是误报，相应条目用 tools:ignore 显式表达意图。
+  review v0.6-round4 F-007。
+
+  Naming convention:
+    app_*      product / branding strings
+    action_*   button labels (verbs, short)
+    nav_*      top-level navigation labels
+    dialog_*   AlertDialog / Dialog titles + bodies
+    status_*   status / progress lines, never user actions
+    hint_*     non-blocking helper text
+    error_*    user-facing failures
+    header_*   table / column headers
+    filter_*   filter expression UI (input + help dialog)
+    notif_*    foreground service notification text
+    conv_*     conversations list / detail
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- app / branding -->
+    <string name="app_name">PacketScope</string>
+    <string name="app_subtitle">Android PCAP viewer</string>
+    <string name="open_pcap_action">Open with PacketScope</string>
+
+    <!-- generic actions -->
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_close">Close</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_clear_data">Clear data</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_follow_stream">Follow stream</string>
+    <string name="action_follow_tcp_stream">Follow TCP stream  →</string>
+
+    <!-- OpenFileScreen -->
+    <string name="action_open_pcap">Open PCAP file</string>
+    <string name="action_listen_pcapdroid">Listen for PCAPdroid</string>
+    <string name="action_load_keylog">Load SSLKEYLOGFILE…</string>
+    <string name="status_parsing">Parsing…</string>
+    <string name="hint_share_pcap">You can also share .pcap files from PCAPdroid or a file manager</string>
+
+    <!-- Listen-port dialog -->
+    <string name="dialog_listen_title">Listen for PCAPdroid UDP Exporter</string>
+    <string name="dialog_listen_port_label">UDP port</string>
+    <string name="dialog_listen_hint">In PCAPdroid choose UDP Exporter mode,\nCollector: 127.0.0.1   Port: %1$s</string>
+    <string name="action_start_listen">Start listening</string>
+
+    <!-- Frame list -->
+    <string name="nav_conversations">Conversations</string>
+    <string name="header_time">Time</string>
+    <string name="header_protocol" tools:ignore="DuplicateStrings">Protocol</string>
+    <string name="header_length">Length</string>
+    <string name="header_info">Info</string>
+    <string name="filter_placeholder">Filter: tcp / port 53 / host 1.1.1.1 / sni example</string>
+    <string name="dialog_stop_listen_title">Stop listening?</string>
+    <string name="dialog_stop_listen_text">Listening for live PCAPdroid data. Closing will stop receiving.</string>
+    <string name="action_stop_listen" tools:ignore="DuplicateStrings">Stop listening</string>
+
+    <!-- Filter help dialog -->
+    <string name="filter_help_title">Filter syntax</string>
+    <string name="filter_help_placeholder">Enter filter expression…</string>
+    <string name="filter_section_protocols" tools:ignore="DuplicateStrings">Protocols</string>
+    <string name="filter_section_addr_port">Address / Port</string>
+    <string name="filter_section_l7">Application layer content</string>
+    <string name="filter_section_combine">Combine</string>
+    <string name="filter_section_examples">Examples</string>
+    <string name="filter_note">Note: and / or / not are case-insensitive; all substring matches ignore case; `text` scans whole-frame raw bytes and is slow on large lists.</string>
+    <!-- protocol descriptions -->
+    <string name="filter_proto_tcp">TCP</string>
+    <string name="filter_proto_udp">UDP</string>
+    <string name="filter_proto_dns">DNS (port 53 UDP/TCP)</string>
+    <string name="filter_proto_http">Plain HTTP</string>
+    <string name="filter_proto_tls">TLS / HTTPS handshake</string>
+    <string name="filter_proto_quic">QUIC (UDP 443)</string>
+    <string name="filter_proto_icmp">ICMP / ICMPv6</string>
+    <string name="filter_proto_ip">IPv4 / IPv6</string>
+    <string name="filter_proto_eth">Ethernet frame</string>
+    <!-- field atom descriptions -->
+    <string name="filter_field_host">Source or destination IP equals this address</string>
+    <string name="filter_field_port">Source or destination port equals this number</string>
+    <string name="filter_field_sni">Substring match against TLS / QUIC SNI</string>
+    <string name="filter_field_url">Substring match against HTTP Host+path or SNI</string>
+    <string name="filter_field_http_host">Substring match against HTTP Host header</string>
+    <string name="filter_field_http_path">Substring match against HTTP Request-line path</string>
+    <string name="filter_field_http_method">HTTP method equals (GET/POST/...)</string>
+    <string name="filter_field_dns_name">Substring match against DNS Question/Answer name</string>
+    <string name="filter_field_app">Substring match against PCAPdroid metadata App name</string>
+    <string name="filter_field_text">Substring match against whole-frame Latin-1 bytes (slowest)</string>
+    <!-- combinator descriptions -->
+    <string name="filter_op_and">Both conditions match (higher precedence)</string>
+    <string name="filter_op_or">Either condition matches</string>
+    <string name="filter_op_not">Negation</string>
+    <string name="filter_op_paren">Parentheses to override precedence</string>
+    <!-- example descriptions -->
+    <string name="filter_example_tcp">Only TCP</string>
+    <string name="filter_example_dns_query">DNS queries</string>
+    <string name="filter_example_github_tls">TLS to GitHub</string>
+    <string name="filter_example_google_dns">Google DNS</string>
+    <string name="filter_example_no_tcp">Exclude TCP</string>
+    <string name="filter_example_tcpudp_no_dns">TCP/UDP but not DNS</string>
+    <string name="filter_example_post_login">POST login requests</string>
+    <string name="filter_example_chrome_dns">Chrome doing Google DNS</string>
+
+    <!-- Frame detail -->
+    <string name="frame_detail_title">Frame #%1$d</string>
+    <!-- No leading whitespace: Android resource loading strips it.
+         Call site adds two-space gap via plain concatenation / Spacer. -->
+    <string name="frame_detail_truncation">⚠ truncated %1$d/%2$dB</string>
+    <!-- "%d bytes" 部分走 plurals.count_bytes，layers 列表由 UI 拼接 -->
+    <string name="frame_detail_layer_truncated">(truncated)</string>
+
+    <!-- Conversations -->
+    <string name="conv_detail_title">Conversation detail</string>
+    <string name="conv_section_endpoints">Endpoints</string>
+    <string name="conv_section_stats">Stats</string>
+    <string name="conv_stat_total_packets">Total packets</string>
+    <string name="conv_stat_total_bytes">Total bytes</string>
+    <string name="conv_stat_duration">Duration</string>
+    <string name="conv_stat_a_to_b_packets">A → B packets</string>
+    <string name="conv_stat_a_to_b_bytes">A → B bytes</string>
+    <string name="conv_stat_b_to_a_packets">B → A packets</string>
+    <string name="conv_stat_b_to_a_bytes">B → A bytes</string>
+    <!-- No trailing whitespace: stripped by resource loader. Spacing handled in UI. -->
+    <string name="conv_app_label">App:</string>
+
+    <!-- Frame detail section headers (FrameDetailScreen 单列展开列表) -->
+    <string name="section_payload">Payload</string>
+    <string name="section_hex_dump">Hex dump</string>
+    <!-- PayloadHeader summary 里的 kind 标签 -->
+    <string name="payload_kind_utf8">UTF-8</string>
+    <string name="payload_kind_binary">binary</string>
+    <!-- 顶栏一键展开 / 收缩按钮（contentDescription，TalkBack 念出来） -->
+    <string name="action_expand_all">Expand all</string>
+    <string name="action_collapse_all">Collapse all</string>
+    <!-- ⤢ 字段全屏按钮（FieldRow / PayloadHeader） -->
+    <string name="action_open_fullscreen">View fullscreen</string>
+    <!-- OpenFileScreen TopAppBar overflow menu + AboutScreen entries -->
+    <string name="action_about">About</string>
+    <string name="action_feedback">Report a bug</string>
+    <string name="action_more_options">More options</string>
+    <string name="about_title">About PacketScope</string>
+    <string name="about_section_source">Source</string>
+    <string name="about_section_related">Related projects</string>
+    <string name="about_section_actions">Actions</string>
+    <string name="about_link_source">Source code</string>
+    <string name="about_link_license">License (MIT)</string>
+    <string name="about_link_third_party">Third-party licenses</string>
+    <string name="about_link_privacy">Privacy policy</string>
+    <string name="about_link_pcapdroid_title">PCAPdroid</string>
+    <string name="about_link_pcapdroid_desc">No-root packet capture for Android. PacketScope is designed to read the .pcap files PCAPdroid exports.</string>
+    <string name="about_action_check_updates">Check for updates</string>
+    <string name="about_action_feedback">Report an issue</string>
+    <string name="about_version_label">Version %1$s (build %2$d)</string>
+    <string name="error_no_browser">No browser available to open URL</string>
+
+    <!-- 全屏搜索栏（SearchHeaderBar，Frame detail / Follow stream 共用） -->
+    <string name="search_placeholder">Search…</string>
+    <string name="search_action">Search</string>
+    <string name="search_close">Close search</string>
+    <string name="search_prev_match">Previous match</string>
+    <string name="search_next_match">Next match</string>
+
+    <!-- Follow stream -->
+    <string name="follow_stream_empty">No payload in this TCP stream</string>
+    <string name="follow_stream_title">TCP Stream</string>
+    <!-- 方向标签：拼接到 SegmentCard 标题；含 → / ← Unicode 字符 -->
+    <string name="follow_stream_direction_to_server">→ server</string>
+    <string name="follow_stream_direction_from_server">← server</string>
+
+    <!-- Streaming session / live source name -->
+    <string name="status_waiting_first_datagram">Waiting for first PCAPdroid datagram</string>
+    <string name="source_name_live">Live :%1$d</string>
+    <string name="source_name_live_with_status">Live :%1$d  (%2$s)</string>
+
+    <!-- Notification -->
+    <string name="notif_channel_name">Live capture</string>
+    <string name="notif_channel_desc">PCAPdroid UDP Exporter ingestion</string>
+    <string name="notif_title">PacketScope live capture</string>
+    <!-- 第 2 参数是已 format 的 plurals 字符串（caller 用 resources.getQuantityString
+         拼 count_packets_received 后传进来），避免 plurals 拼 port 一个资源里 -->
+    <string name="notif_text">Port :%1$d · %2$s</string>
+    <string name="notif_action_stop" tools:ignore="DuplicateStrings">Stop listening</string>
+
+    <!-- Filter parser errors (mapped from sealed FilterParseError in UI) -->
+    <string name="filter_error_missing_right_paren">Missing closing parenthesis</string>
+    <string name="filter_error_expected_right_paren">Expected \")\" but got \"%1$s\"</string>
+    <string name="filter_error_unexpected_end_of_expr">Unexpected end of expression</string>
+    <string name="filter_error_expected_digit">Expected a number, got \"%1$s\"</string>
+    <string name="filter_error_port_out_of_range">Port must be 0..65535, got %1$d</string>
+    <string name="filter_error_unknown_token">Unknown token: \"%1$s\"</string>
+    <string name="filter_error_missing_arg">Missing argument after \"%1$s\"</string>
+    <string name="filter_error_extra_token">Extra token: \"%1$s\"</string>
+
+    <!-- Errors (user-facing PcapLoader / loader failures) -->
+    <string name="error_open_stream_null">ContentResolver.openInputStream returned null</string>
+    <string name="error_open_stream">Failed to open file: %1$s</string>
+    <string name="error_parse">Parse failed: %1$s</string>
+    <string name="error_unexpected">Unexpected error: %1$s</string>
+    <string name="error_pcapng_unsupported">PacketScope does not support PCAPng yet. In PCAPdroid choose the PCAP export (not PCAPng), or convert with: tshark -F pcap -r in.pcapng -w out.pcap</string>
+    <string name="error_file_too_large">File size %1$d MB exceeds the %2$d MB threshold. The current build loads the whole file into memory and would OOM on this device; lazy paging is on the v0.9 roadmap.</string>
+
+    <!-- Plurals: 单复数 quantity strings。英文 quantity=one 覆盖 n==1，quantity=other
+         覆盖其它（包括 0）。中文 values-zh 只放 quantity=other。 -->
+    <plurals name="count_packets">
+        <item quantity="one">%d packet</item>
+        <item quantity="other">%d packets</item>
+    </plurals>
+    <plurals name="count_packets_received">
+        <item quantity="one">%d packet received</item>
+        <item quantity="other">%d packets received</item>
+    </plurals>
+    <plurals name="count_bytes">
+        <item quantity="one">%d byte</item>
+        <item quantity="other">%d bytes</item>
+    </plurals>
+    <plurals name="count_characters">
+        <item quantity="one">%d character</item>
+        <item quantity="other">%d characters</item>
+    </plurals>
+    <plurals name="count_sessions">
+        <item quantity="one">%d session</item>
+        <item quantity="other">%d sessions</item>
+    </plurals>
+    <plurals name="count_session_keys_loaded">
+        <item quantity="one">%d session key loaded</item>
+        <item quantity="other">%d session keys loaded</item>
+    </plurals>
+    <plurals name="count_segments">
+        <item quantity="one">%d segment</item>
+        <item quantity="other">%d segments</item>
+    </plurals>
+    <plurals name="count_matches">
+        <item quantity="one">%d match</item>
+        <item quantity="other">%d matches</item>
+    </plurals>
+</resources>

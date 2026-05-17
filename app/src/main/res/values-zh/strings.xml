@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  简体中文资源（zh / zh-CN / zh-TW 共享）。Android 在设备语言为中文时选用此文件，
+  否则 fallback 到 res/values/strings.xml（英语）。
+
+  键名规范见 res/values/strings.xml 头注释。本文件 key 必须与英语版一一对应。
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- app / branding -->
+    <string name="app_name">PacketScope</string>
+    <string name="app_subtitle">Android PCAP 查看器</string>
+    <string name="open_pcap_action">用 PacketScope 打开</string>
+
+    <!-- generic actions -->
+    <string name="action_back">返回</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_close">关闭</string>
+    <string name="action_clear">清除</string>
+    <string name="action_clear_data">清空</string>
+    <string name="action_copy">复制</string>
+    <string name="action_follow_stream">跟随流</string>
+    <string name="action_follow_tcp_stream">跟随 TCP 流  →</string>
+
+    <!-- OpenFileScreen -->
+    <string name="action_open_pcap">打开 PCAP 文件</string>
+    <string name="action_listen_pcapdroid">监听 PCAPdroid</string>
+    <string name="action_load_keylog">加载 SSLKEYLOGFILE…</string>
+    <string name="status_parsing">正在解析…</string>
+    <string name="hint_share_pcap">也可以从 PCAPdroid 或文件管理器直接分享 .pcap 到本应用</string>
+
+    <!-- Listen-port dialog -->
+    <string name="dialog_listen_title">监听 PCAPdroid UDP Exporter</string>
+    <string name="dialog_listen_port_label">UDP 端口</string>
+    <string name="dialog_listen_hint">在 PCAPdroid 选择 UDP Exporter 模式，\nCollector: 127.0.0.1   Port: %1$s</string>
+    <string name="action_start_listen">开始监听</string>
+
+    <!-- Frame list -->
+    <string name="nav_conversations">会话</string>
+    <string name="header_time">时间</string>
+    <string name="header_protocol" tools:ignore="DuplicateStrings">协议</string>
+    <string name="header_length">长度</string>
+    <string name="header_info">Info</string>
+    <string name="filter_placeholder">过滤: tcp / port 53 / host 1.1.1.1 / sni example</string>
+    <string name="dialog_stop_listen_title">停止监听？</string>
+    <string name="dialog_stop_listen_text">正在监听 PCAPdroid 实时数据，关闭后会停止接收。</string>
+    <string name="action_stop_listen" tools:ignore="DuplicateStrings">停止监听</string>
+
+    <!-- Filter help dialog -->
+    <string name="filter_help_title">过滤语法</string>
+    <string name="filter_help_placeholder">输入过滤表达式 …</string>
+    <string name="filter_section_protocols" tools:ignore="DuplicateStrings">协议</string>
+    <string name="filter_section_addr_port">地址 / 端口</string>
+    <string name="filter_section_l7">应用层内容</string>
+    <string name="filter_section_combine">组合</string>
+    <string name="filter_section_examples">示例</string>
+    <string name="filter_note">注：and / or / not 大小写均可；所有子串匹配忽略大小写；text 因为要扫整帧 raw bytes，在大列表上明显较慢。</string>
+    <!-- protocol descriptions -->
+    <string name="filter_proto_tcp">TCP</string>
+    <string name="filter_proto_udp">UDP</string>
+    <string name="filter_proto_dns">DNS（53 端口 UDP/TCP）</string>
+    <string name="filter_proto_http">明文 HTTP</string>
+    <string name="filter_proto_tls">TLS / HTTPS 握手</string>
+    <string name="filter_proto_quic">QUIC（443 UDP）</string>
+    <string name="filter_proto_icmp">ICMP / ICMPv6</string>
+    <string name="filter_proto_ip">IPv4 / IPv6</string>
+    <string name="filter_proto_eth">以太网帧</string>
+    <!-- field atom descriptions -->
+    <string name="filter_field_host">源或目的 IP 等于该地址</string>
+    <string name="filter_field_port">源或目的端口等于该数字</string>
+    <string name="filter_field_sni">TLS / QUIC SNI 包含子串</string>
+    <string name="filter_field_url">HTTP Host+path 或 SNI 包含子串</string>
+    <string name="filter_field_http_host">HTTP Host header 包含子串</string>
+    <string name="filter_field_http_path">HTTP Request line 的 path 包含子串</string>
+    <string name="filter_field_http_method">HTTP method 等于（GET/POST/...）</string>
+    <string name="filter_field_dns_name">DNS Question/Answer Name 包含子串</string>
+    <string name="filter_field_app">PCAPdroid metadata 中 App name 包含子串</string>
+    <string name="filter_field_text">整帧 raw bytes 当 Latin-1 后子串匹配（最慢）</string>
+    <!-- combinator descriptions -->
+    <string name="filter_op_and">两个条件都满足（优先级更高）</string>
+    <string name="filter_op_or">任一条件满足</string>
+    <string name="filter_op_not">取反</string>
+    <string name="filter_op_paren">用括号改变优先级</string>
+    <!-- example descriptions -->
+    <string name="filter_example_tcp">只看 TCP</string>
+    <string name="filter_example_dns_query">DNS 查询</string>
+    <string name="filter_example_github_tls">GitHub 相关 TLS</string>
+    <string name="filter_example_google_dns">Google DNS</string>
+    <string name="filter_example_no_tcp">排除 TCP</string>
+    <string name="filter_example_tcpudp_no_dns">TCP/UDP 但不要 DNS</string>
+    <string name="filter_example_post_login">POST 登录请求</string>
+    <string name="filter_example_chrome_dns">Chrome 的 Google DNS 查询</string>
+
+    <!-- Frame detail -->
+    <string name="frame_detail_title">帧 #%1$d</string>
+    <!-- 资源里不能带前导空格，loader 会剥掉；间距在 UI 端补 -->
+    <string name="frame_detail_truncation">⚠ 截断 %1$d/%2$dB</string>
+    <string name="frame_detail_layer_truncated">(截断)</string>
+
+    <!-- Conversations -->
+    <string name="conv_detail_title">会话详情</string>
+    <string name="conv_section_endpoints">Endpoints</string>
+    <string name="conv_section_stats">统计</string>
+    <string name="conv_stat_total_packets">总包数</string>
+    <string name="conv_stat_total_bytes">总字节</string>
+    <string name="conv_stat_duration">时长</string>
+    <string name="conv_stat_a_to_b_packets">A → B 包</string>
+    <string name="conv_stat_a_to_b_bytes">A → B 字节</string>
+    <string name="conv_stat_b_to_a_packets">B → A 包</string>
+    <string name="conv_stat_b_to_a_bytes">B → A 字节</string>
+    <!-- 资源里不能带尾随空格，loader 会剥掉；间距在 UI 端补 -->
+    <string name="conv_app_label">App:</string>
+
+    <!-- Frame detail section headers -->
+    <string name="section_payload">载荷</string>
+    <string name="section_hex_dump">十六进制</string>
+    <!-- payload kind 标签：UTF-8 是协议名按惯例不翻 -->
+    <string name="payload_kind_utf8">UTF-8</string>
+    <string name="payload_kind_binary">二进制</string>
+    <!-- 顶栏一键展开 / 收缩 -->
+    <string name="action_expand_all">全部展开</string>
+    <string name="action_collapse_all">全部收起</string>
+    <!-- ⤢ 全屏按钮 -->
+    <string name="action_open_fullscreen">全屏查看</string>
+    <!-- OpenFileScreen TopAppBar overflow + AboutScreen -->
+    <string name="action_about">关于</string>
+    <string name="action_feedback">反馈问题</string>
+    <string name="action_more_options">更多选项</string>
+    <string name="about_title">关于 PacketScope</string>
+    <string name="about_section_source">源码与许可</string>
+    <string name="about_section_related">关联项目</string>
+    <string name="about_section_actions">操作</string>
+    <string name="about_link_source">源代码</string>
+    <string name="about_link_license">许可证 (MIT)</string>
+    <string name="about_link_third_party">第三方依赖许可</string>
+    <string name="about_link_privacy">隐私政策</string>
+    <string name="about_link_pcapdroid_title">PCAPdroid</string>
+    <string name="about_link_pcapdroid_desc">Android 上无 root 即可抓包的开源 app。PacketScope 设计用来读取 PCAPdroid 导出的 .pcap 文件。</string>
+    <string name="about_action_check_updates">检查更新</string>
+    <string name="about_action_feedback">反馈问题</string>
+    <string name="about_version_label">版本 %1$s（构建号 %2$d）</string>
+    <string name="error_no_browser">没有可用的浏览器打开此链接</string>
+
+    <!-- 全屏搜索栏 -->
+    <string name="search_placeholder">搜索…</string>
+    <string name="search_action">搜索</string>
+    <string name="search_close">关闭搜索</string>
+    <string name="search_prev_match">上一个匹配</string>
+    <string name="search_next_match">下一个匹配</string>
+
+    <!-- Follow stream -->
+    <string name="follow_stream_empty">该 TCP 流没有 payload 段</string>
+    <string name="follow_stream_title">TCP 流</string>
+    <string name="follow_stream_direction_to_server">→ 服务器</string>
+    <string name="follow_stream_direction_from_server">← 服务器</string>
+
+    <!-- Streaming session / live source name -->
+    <string name="status_waiting_first_datagram">等待 PCAPdroid 第一个数据包</string>
+    <string name="source_name_live">实时 :%1$d</string>
+    <string name="source_name_live_with_status">实时 :%1$d  (%2$s)</string>
+
+    <!-- Notification -->
+    <string name="notif_channel_name">实时监听</string>
+    <string name="notif_channel_desc">PCAPdroid UDP Exporter 接收过程</string>
+    <string name="notif_title">PacketScope 实时监听</string>
+    <!-- 第 2 参数是已 format 的 plurals 字符串，避免 plurals 拼端口 -->
+    <string name="notif_text">端口 :%1$d · %2$s</string>
+    <string name="notif_action_stop" tools:ignore="DuplicateStrings">停止监听</string>
+
+    <!-- Filter parser errors（core 抛 FilterParseError，UI 映射到这些资源） -->
+    <string name="filter_error_missing_right_paren">缺少右括号</string>
+    <string name="filter_error_expected_right_paren">期望 \")\"，得到 \"%1$s\"</string>
+    <string name="filter_error_unexpected_end_of_expr">意外的表达式末尾</string>
+    <string name="filter_error_expected_digit">期望数字，得到 \"%1$s\"</string>
+    <string name="filter_error_port_out_of_range">端口超出 0..65535: %1$d</string>
+    <string name="filter_error_unknown_token">未识别的标记: \"%1$s\"</string>
+    <string name="filter_error_missing_arg">\"%1$s\" 后需要参数</string>
+    <string name="filter_error_extra_token">多余的标记: \"%1$s\"</string>
+
+    <!-- Errors (user-facing PcapLoader / loader failures) -->
+    <string name="error_open_stream_null">ContentResolver.openInputStream 返回 null</string>
+    <string name="error_open_stream">无法打开文件: %1$s</string>
+    <string name="error_parse">解析失败: %1$s</string>
+    <string name="error_unexpected">意外错误: %1$s</string>
+    <string name="error_pcapng_unsupported">PacketScope 暂不支持 PCAPng 格式。请在 PCAPdroid 导出时选「PCAP」而非「PCAPng」，或用 tshark 转换：tshark -F pcap -r in.pcapng -w out.pcap</string>
+    <string name="error_file_too_large">文件大小 %1$d MB 超过 %2$d MB 阈值。当前版本一次性把帧读进堆，大文件会 OOM；lazy paging 排在 v0.9 路线图。</string>
+
+    <!-- Plurals: 中文不区分单复数，只需 quantity=other -->
+    <plurals name="count_packets">
+        <item quantity="other">%d 包</item>
+    </plurals>
+    <plurals name="count_packets_received">
+        <item quantity="other">已捕获 %d 包</item>
+    </plurals>
+    <plurals name="count_bytes">
+        <item quantity="other">%d 字节</item>
+    </plurals>
+    <plurals name="count_characters">
+        <item quantity="other">%d 字符</item>
+    </plurals>
+    <plurals name="count_sessions">
+        <item quantity="other">%d 个会话</item>
+    </plurals>
+    <plurals name="count_session_keys_loaded">
+        <item quantity="other">已加载 %d 个 session keys</item>
+    </plurals>
+    <plurals name="count_segments">
+        <item quantity="other">%d 段</item>
+    </plurals>
+    <plurals name="count_matches">
+        <item quantity="other">%d 个匹配</item>
+    </plurals>
+</resources>
