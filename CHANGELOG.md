@@ -10,6 +10,19 @@ README Roadmap 表 + `app/build.gradle.kts` `versionCode` 三处同步——
 
 ## [Unreleased]
 
+### Added
+- 真机截图入库 `docs/screenshots/`（5 张 .jpg）+ fastlane phoneScreenshots
+  双语副本：启动屏 / 包列表实时 / 帧详情 / 过滤语法 / 会话视图。
+  README 双语 §Screenshots 段直接渲染 markdown 图片表
+- README "Install directly" 段更新为 `PacketScope-<version>-release.apk`
+  对齐 v1.1.0 起的 base.archivesName 命名
+
+### Security
+- 截图前置 PII 处理：帧详情 / 会话屏中真实私有 IP（局域网 +
+  运营商 NAT 段）已用纯色矩形 redact；原图 staging 区
+  `/images/` 入 `.gitignore` 永不入库，含 dotfile 列表的 payload 截图
+  直接不入库
+
 ## [1.1.0] - 2026-05-17
 
 ### Added

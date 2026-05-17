@@ -32,11 +32,21 @@ locale is `zh-*`.
 
 ## Screenshots
 
-> Pending real-device QA, see [`docs/screenshots/`](docs/screenshots/).
+| Open file | Frame list (live) | Frame detail |
+| --- | --- | --- |
+| ![Open file](docs/screenshots/01-open-file.jpg) | ![Frame list](docs/screenshots/02-frame-list.jpg) | ![Frame detail](docs/screenshots/03-frame-detail.jpg) |
+
+| Filter syntax | Conversations |
+| --- | --- |
+| ![Filter syntax](docs/screenshots/04-filter-help.jpg) | ![Conversations](docs/screenshots/05-conversations.jpg) |
+
+> Captured on a real device against Termux's `python -m http.server`
+> as the demo traffic source. Private IPs in the frame detail / conversation
+> screens are redacted.
 
 ## Install directly
 
-Download the latest `app-release.apk` from
+Download `PacketScope-<version>-release.apk` from
 [Releases](https://github.com/Seryta/PacketScope/releases) and enable
 "Install from unknown sources". F-Droid repository inclusion is planned.
 

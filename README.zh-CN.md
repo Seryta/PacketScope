@@ -23,12 +23,22 @@ Android 端 PCAP 查看器。**专做查看，不抓包。**
 
 ## 截图
 
-> 真机 QA 阶段补，见 [`docs/screenshots/`](docs/screenshots/)。
+| 打开文件 | 包列表（实时） | 帧详情 |
+| --- | --- | --- |
+| ![打开文件](docs/screenshots/01-open-file.jpg) | ![包列表](docs/screenshots/02-frame-list.jpg) | ![帧详情](docs/screenshots/03-frame-detail.jpg) |
+
+| 过滤语法 | 会话视图 |
+| --- | --- |
+| ![过滤语法](docs/screenshots/04-filter-help.jpg) | ![会话](docs/screenshots/05-conversations.jpg) |
+
+> 真机抓 Termux `python -m http.server` 的本机流量；帧详情 / 会话屏
+> 中的私有 IP 已打码 redact。
 
 ## 直接安装
 
 到 [Releases](https://github.com/Seryta/PacketScope/releases) 下载最新
-`app-release.apk`，启用「未知来源」安装。或加入 F-Droid 仓库（计划中）。
+`PacketScope-<version>-release.apk`，启用「未知来源」安装。或加入
+F-Droid 仓库（计划中）。
 
 ## 当前状态：v1.1.0（≈ Roadmap v1.1）
 

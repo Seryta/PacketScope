@@ -19,3 +19,6 @@ captures/
 # Roborazzi verify 临时产物（每次重生成）；只 baseline *.png 入库
 app/snapshots/*_actual.png
 app/snapshots/*_compare.png
+# 截图原图 staging 区——含真实 IP / payload / dotfile 列表等可能的 PII；
+# redact 后入 docs/screenshots/ 与 fastlane phoneScreenshots/。本目录永不入库
+/images/
