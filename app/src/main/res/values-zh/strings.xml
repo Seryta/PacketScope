@@ -41,6 +41,7 @@
     <string name="header_length">长度</string>
     <string name="header_info">Info</string>
     <string name="filter_placeholder">过滤: tcp / port 53 / host 1.1.1.1 / sni example</string>
+    <string name="filter_clear">清除过滤</string>
     <string name="dialog_stop_listen_title">停止监听？</string>
     <string name="dialog_stop_listen_text">正在监听 PCAPdroid 实时数据，关闭后会停止接收。</string>
     <string name="action_stop_listen" tools:ignore="DuplicateStrings">停止监听</string>

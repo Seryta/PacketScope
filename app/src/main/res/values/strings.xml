@@ -60,6 +60,7 @@
     <string name="header_length">Length</string>
     <string name="header_info">Info</string>
     <string name="filter_placeholder">Filter: tcp / port 53 / host 1.1.1.1 / sni example</string>
+    <string name="filter_clear">Clear filter</string>
     <string name="dialog_stop_listen_title">Stop listening?</string>
     <string name="dialog_stop_listen_text">Listening for live PCAPdroid data. Closing will stop receiving.</string>
     <string name="action_stop_listen" tools:ignore="DuplicateStrings">Stop listening</string>

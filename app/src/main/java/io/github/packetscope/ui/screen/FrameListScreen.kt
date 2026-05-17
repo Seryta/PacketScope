@@ -16,15 +16,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -207,9 +214,22 @@ private fun FilterBar(
                 Text(stringResource(R.string.filter_placeholder),
                     fontFamily = MonoFont, fontSize = 12.sp)
             },
+            // X 清除按钮（仅 query 非空）+ ? 帮助按钮并排在右侧；
+            // Compose 把 trailingIcon 渲染在 TextField 内部右边的 indicator
+            // 槽位，不占输入区域。
             trailingIcon = {
-                TextButton(onClick = onShowHelp) {
-                    Text("?", fontFamily = MonoFont, fontSize = 16.sp)
+                Row {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = { onChange("") }) {
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = stringResource(R.string.filter_clear),
+                            )
+                        }
+                    }
+                    TextButton(onClick = onShowHelp) {
+                        Text("?", fontFamily = MonoFont, fontSize = 16.sp)
+                    }
                 }
             },
             singleLine = true,
@@ -364,6 +384,39 @@ private fun FixedCell(text: String, width: androidx.compose.ui.unit.Dp) {
     }
 }
 
+/** FilterHelpDialog 的输入栏：回车 IME → 关 dialog 回列表；X 清除按钮。 */
+@Composable
+private fun FilterHelpInputField(
+    query: String,
+    onChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onChange,
+        placeholder = {
+            Text(stringResource(R.string.filter_help_placeholder),
+                fontFamily = MonoFont, fontSize = 12.sp)
+        },
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(onSearch = { onDismiss() }),
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onChange("") }) {
+                    Icon(
+                        Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.filter_clear),
+                    )
+                }
+            }
+        },
+        singleLine = true,
+        modifier = Modifier.fillMaxWidth(),
+        textStyle = androidx.compose.ui.text.TextStyle(
+            fontFamily = MonoFont, fontSize = 13.sp),
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FilterHelpDialog(
@@ -397,18 +450,7 @@ private fun FilterHelpDialog(
                 modifier = Modifier.fillMaxSize().padding(padding)
                     .padding(horizontal = 12.dp, vertical = 8.dp),
             ) {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = onChange,
-                    placeholder = {
-                        Text(stringResource(R.string.filter_help_placeholder),
-                            fontFamily = MonoFont, fontSize = 12.sp)
-                    },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = androidx.compose.ui.text.TextStyle(
-                        fontFamily = MonoFont, fontSize = 13.sp),
-                )
+                FilterHelpInputField(query, onChange, onDismiss)
                 Spacer(modifier = Modifier.height(12.dp))
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     // 协议名 / 完整示例：点击直接替换 query —— 都是无需参数的完整片段
