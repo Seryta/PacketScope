@@ -1,0 +1,36 @@
+PacketScope is a read-only PCAP (packet capture) viewer for Android. It is
+designed to pair with PCAPdroid for capture, and provides a familiar
+Wireshark-style interface for analysis: frame list, protocol tree, and
+byte-level hex view with synchronized highlighting.
+
+## Features
+
+- <b>Protocol parsing</b>: Ethernet, Linux SLL, Raw IP / IPv4 / IPv6 / ICMP
+  / ICMPv6 / TCP / UDP / DNS / HTTP / TLS (with SNI) / QUIC
+- <b>TCP stream analysis</b>: relative seq/ack, retransmissions, out-of-order,
+  duplicate ACKs
+- <b>TCP reassembly + HTTP body parsing</b>: cross-segment HTTP request /
+  response with Content-Length, chunked encoding, gzip / deflate
+- <b>TLS decryption</b>: TLS 1.2 (AES-GCM, ChaCha20-Poly1305) + TLS 1.3
+  (AES-128-GCM, AES-256-GCM, ChaCha20-Poly1305) when you provide an
+  SSLKEYLOGFILE
+- <b>QUIC v1 Initial decryption</b>: payload + CRYPTO frame extraction
+- <b>Wireshark-style filters</b>: tcp, port 53, host 1.1.1.1, sni example.com,
+  http.method POST, dns.name google ... with and/or/not/parentheses
+- <b>PCAPdroid integration</b>: open .pcap files via share / ACTION_VIEW
+  intent, decode PCAPdroid app-attribution trailer, ingest UDP Exporter
+  stream in real time
+- <b>Large files</b>: mmap-based reader for PCAPs up to 500MB
+
+## Privacy
+
+PacketScope is offline. It does not collect, log, transmit, or share any
+data. The only network access is binding a local UDP socket for PCAPdroid
+live ingestion. See PRIVACY.md in the repository.
+
+## Pairing with PCAPdroid
+
+PCAPdroid (also on F-Droid) captures network traffic on Android without
+root, then exports either as .pcap files (open in PacketScope via share)
+or as a live UDP stream (PacketScope listens on a configurable port,
+default 1234).

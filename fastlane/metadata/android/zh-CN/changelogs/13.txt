@@ -1,0 +1,10 @@
+v0.9.0：
+- 新增 mmap 路径 PCAP reader，单文件上限从 50MB 提到 500MB
+- 新增 TCP 流重组 + HTTP body 跨 segment 解析（Content-Length / chunked
+  / gzip / deflate）
+- 新增 TLS 1.2 多 cipher 解密（AES-GCM × 2 + ChaCha20-Poly1305）
+- 新增 TLS 1.3 AES-256-GCM 与 ChaCha20-Poly1305
+- 新增 QUIC v1 Initial 解密 + CRYPTO frame 提取
+- UI：payload 全屏 LazyColumn、统一 SearchHeaderBar 跨段导航、
+  OpenFileScreen 加 TopAppBar + 关于菜单
+- 关于页面：版本号 / 源代码 / 许可证 / 隐私政策 / 检查更新 / 反馈

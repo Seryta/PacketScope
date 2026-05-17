@@ -1,0 +1,11 @@
+v0.9.0:
+- Added mmap-based PCAP reader for large files (50MB → 500MB limit)
+- Added TCP stream reassembly + HTTP body cross-segment parsing
+  (Content-Length / chunked / gzip / deflate)
+- Added TLS 1.2 multi-cipher decryption (AES-GCM × 2 + ChaCha20-Poly1305)
+- Added TLS 1.3 AES-256-GCM + ChaCha20-Poly1305
+- Added QUIC v1 Initial decryption + CRYPTO frame extraction
+- UI: payload fullscreen LazyColumn, unified SearchHeaderBar with
+  cross-segment navigation, OpenFileScreen TopAppBar with About menu
+- About screen: version info / source / license / privacy / check for
+  updates / report issue
