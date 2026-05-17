@@ -33,10 +33,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
@@ -384,16 +387,33 @@ private fun FixedCell(text: String, width: androidx.compose.ui.unit.Dp) {
     }
 }
 
-/** FilterHelpDialog 的输入栏：回车 IME → 关 dialog 回列表；X 清除按钮。 */
+/** FilterHelpDialog 的输入栏：回车 IME → 关 dialog 回列表；X 清除按钮；
+ *  HelpItem 点击替换 query 后光标自动到末尾（用 TextFieldValue overload 控
+ *  selection，OutlinedTextField(String) overload 无法外部控光标位置）。 */
 @Composable
 private fun FilterHelpInputField(
     query: String,
     onChange: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    // 内部 TextFieldValue 同时持 text + selection。用户在 TextField 内输入时
+    // 内部 tfv 跟外部 query 通过 onValueChange / onChange 同步；HelpItem 点
+    // 击触发外部 onChange(new) → query 变 → 本 LaunchedEffect 发现 tfv.text
+    // != query，重置 tfv 让 selection 落在末尾。
+    var tfv by remember {
+        mutableStateOf(TextFieldValue(query, TextRange(query.length)))
+    }
+    LaunchedEffect(query) {
+        if (query != tfv.text) {
+            tfv = TextFieldValue(query, TextRange(query.length))
+        }
+    }
     OutlinedTextField(
-        value = query,
-        onValueChange = onChange,
+        value = tfv,
+        onValueChange = {
+            tfv = it
+            if (it.text != query) onChange(it.text)
+        },
         placeholder = {
             Text(stringResource(R.string.filter_help_placeholder),
                 fontFamily = MonoFont, fontSize = 12.sp)
