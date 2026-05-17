@@ -116,6 +116,14 @@ android {
     }
 }
 
+// APK / AAB 文件名：默认 "app-<buildType>.apk" 用 module 名 "app"，不直观；
+// 改成 "PacketScope-<versionName>-<buildType>.apk" 一眼能看出产物对应哪个
+// release。AGP 8 推荐 base.archivesName 而非 defaultConfig.archivesBaseName，
+// 同时影响 APK / AAB / mapping.txt 等所有 archive 产物。
+base {
+    archivesName.set("PacketScope-${android.defaultConfig.versionName}")
+}
+
 // Roborazzi 视觉回归基线放 app/snapshots/（项目内、非 build/ 子目录、入 git）。
 // 默认 outputDir = app/build/outputs/roborazzi/ 被 .gitignore 排除，CI fresh
 // clone 没基线 verify 必然全失败。改到 snapshots/ 后 PNG 入库，verify 有参照。

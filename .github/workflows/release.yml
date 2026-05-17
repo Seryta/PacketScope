@@ -66,10 +66,11 @@ jobs:
 
       - name: Verify APK signature
         run: |
-          # build-tools/*/apksigner 路径里取最新的一个
+          # APK 名 = PacketScope-<versionName>-release.apk（build.gradle.kts
+          # base.archivesName 控），release dir 只有这一个 APK 产物，glob 不歧义。
           APKSIGNER=$(ls -1 $ANDROID_HOME/build-tools/*/apksigner | tail -n 1)
-          "$APKSIGNER" verify --verbose --print-certs \
-            app/build/outputs/apk/release/app-release.apk
+          APK=$(ls app/build/outputs/apk/release/PacketScope-*-release.apk | head -n 1)
+          "$APKSIGNER" verify --verbose --print-certs "$APK"
 
       - name: Extract release notes from CHANGELOG
         id: notes
@@ -93,8 +94,8 @@ jobs:
         with:
           body_path: /tmp/release-notes.md
           files: |
-            app/build/outputs/apk/release/app-release.apk
-            app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/apk/release/PacketScope-*-release.apk
+            app/build/outputs/bundle/release/PacketScope-*-release.aab
           draft: false
           prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') || contains(github.ref, '-alpha') }}
           # 不让 GitHub 自动生成 release notes（基于 commit 列表）；用 CHANGELOG 段
