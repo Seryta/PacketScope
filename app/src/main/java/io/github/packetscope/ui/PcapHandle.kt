@@ -3,6 +3,7 @@ package io.github.packetscope.ui
 import io.github.packetscope.core.filter.FilterIndex
 import io.github.packetscope.core.pcap.Frame
 import io.github.packetscope.core.pcap.LinkType
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 一次 PCAP 加载的所有产物 + 底层资源。LAZY-003 引入：把 mmap 生命周期从
@@ -29,11 +30,13 @@ class PcapHandle(
     val indices: List<FilterIndex>,
     private val onClose: () -> Unit,
 ) : AutoCloseable {
-    @Volatile private var closed = false
+    // v1.1-round1 F-002：原 @Volatile + check-then-set 两线程并发能进同一分支
+    // 双触发 onClose。AtomicBoolean.compareAndSet 是 atomic test-and-set，
+    // onClose 严格 exactly-once。零开销改动。
+    private val closed = AtomicBoolean(false)
 
     override fun close() {
-        if (closed) return
-        closed = true
+        if (!closed.compareAndSet(false, true)) return
         onClose()
     }
 }
