@@ -124,6 +124,31 @@
 - [ ] 50k 包 filter 实时输入无明显卡顿
 - [ ] hex dump 展开后滚动流畅
 
+### N.1 大文件 + lazy mmap heap 档案（v1.1 LAZY-005 入口）
+
+`adb shell dumpsys meminfo io.github.packetscope.debug` 读 heap 档案：
+
+- [ ] 200 MB PCAP 加载后 **Dalvik Heap < 200 MB**（v1.1 lazy 改造后
+  raw bytes 不入 heap，仅元数据 + indices）
+- [ ] **Native Heap** 反映 mmap 占用（应能看到 ≈ PCAP 文件大小的 mmapped
+  region），证明 zero-copy 视图生效
+- [ ] 1 GB PCAP 打开 < 5 秒 + 不 OOM（LAZY-005 上限提升后必测）
+- [ ] 连续打开 5 个不同 PCAP，旧 mmap 立即释放——`procrank` /
+  `dumpsys meminfo` 看 PSS 不累积增长（LAZY-003 PcapHandle 验收）
+
+操作步骤：
+```
+adb shell dumpsys meminfo io.github.packetscope.debug | head -40
+# 关注两段：
+#   App Summary → Java Heap (Dalvik) + Native Heap
+#   Mappings → mmap 字节数
+```
+
+期望档案（200 MB PCAP）：
+- Dalvik Heap ≈ 50-150 MB（layers / fields / indices；跟帧数线性，跟单
+  帧字节数无关）
+- Native Heap + mmap ≈ 200 MB（OS paging 按需，cold cache 时较低）
+
 ## O. 不存在的 regressions
 
 - [ ] 没有任何 logcat ERROR / FATAL 输出
