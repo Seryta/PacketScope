@@ -90,7 +90,10 @@ object PcapLoader {
         }
     }
 
-    /** 在已开 [FileChannel] 上：读 magic → 非 PCAPng → mmap reader → 解析。 */
+    /** 在已开 [FileChannel] 上：读 magic → 非 PCAPng → mmap reader → 解析。
+     *  reader 不 close —— mmap 视图随 Frame.data 存活到 PcapHandle.close()；
+     *  channel 由 [tryLoadViaFd] 外层 .use{} 在 load 完成后关闭，但 mmap 已
+     *  mapped 进进程地址空间，不依赖 channel 持续 alive。 */
     private fun loadViaChannel(context: Context, ch: FileChannel): Result {
         val magic = ByteArray(4)
         // FileChannel.read(buf, position) 不消耗 channel position；map 不受影响
@@ -99,7 +102,13 @@ object PcapLoader {
             return Result.Failure(context.getString(R.string.error_pcapng_unsupported))
         }
         val reader = PcapMmapReader(ch)
-        return loadFromRawFrames(reader.linkType, reader.frames().toList())
+        return loadFromRawFrames(
+            linkType = reader.linkType,
+            rawList = reader.frames().toList(),
+            // PcapHandle.close → 显式 unmap，释放 mmap 占的进程地址空间。
+            // reader 强引用走 lambda capture，与 PcapHandle 共存活。
+            onClose = { reader.tryExplicitUnmap() },
+        )
     }
 
     /** Fallback：fd 不可用时走 InputStream + PushbackInputStream peek magic +
@@ -124,7 +133,13 @@ object PcapLoader {
                     )
                 }
                 val reader = PcapReader(pushback)
-                loadFromRawFrames(reader.linkType, reader.frames().toList())
+                loadFromRawFrames(
+                    linkType = reader.linkType,
+                    rawList = reader.frames().toList(),
+                    // InputStream 路径下 Frame.data 是 HeapBytes，无 mmap 资源
+                    // 需要释放——close 是 no-op
+                    onClose = {},
+                )
             }
         } catch (e: IOException) {
             Result.Failure(context.getString(R.string.error_parse, e.message ?: ""))
@@ -134,7 +149,11 @@ object PcapLoader {
     }
 
     /** 公共解析路径：raw frames → Pipeline + analyzer + decrypt + filter index */
-    private fun loadFromRawFrames(linkType: LinkType, rawList: List<RawFrame>): Result {
+    private fun loadFromRawFrames(
+        linkType: LinkType,
+        rawList: List<RawFrame>,
+        onClose: () -> Unit,
+    ): Result {
         val pipeline = Pipeline(linkType)
         val rawFrames = rawList.map(pipeline::process)
         val withTcpAnalysis = TcpSessionAnalyzer.process(rawFrames)
@@ -142,7 +161,7 @@ object PcapLoader {
         val withTls = TlsDecryptionPass.process(withHttp)
         val frames = QuicInitialPass.process(withTls)
         val indices = frames.map(FilterIndex::build)
-        return Result.Success(linkType = linkType, frames = frames, indices = indices)
+        return Result.Success(PcapHandle(linkType, frames, indices, onClose))
     }
 
     /** PCAPng Section Header Block magic: 0x0A 0x0D 0x0D 0x0A
@@ -164,11 +183,11 @@ object PcapLoader {
     }
 
     sealed interface Result {
-        data class Success(
-            val linkType: LinkType,
-            val frames: List<Frame>,
-            val indices: List<FilterIndex>,
-        ) : Result
+        /** 成功路径——产物用 [PcapHandle] 持有以管 mmap 生命周期。
+         *  调用方拿到 frames/indices/linkType 通过 `handle.frames` 等；用完调
+         *  `handle.close()` 释放 mmap（AppScreen 在 state 切换时通过
+         *  DisposableEffect 触发）。 */
+        data class Success(val handle: PcapHandle) : Result
         data class Failure(val message: String) : Result
     }
 }

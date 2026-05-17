@@ -93,8 +93,9 @@ class PcapLoaderTest {
         val result = PcapLoader.load(context, uri)
         assertTrue("合法 PCAP 应 Success", result is PcapLoader.Result.Success)
         val s = result as PcapLoader.Result.Success
-        assertEquals(0, s.frames.size)
-        assertEquals(0, s.indices.size)
+        assertEquals(0, s.handle.frames.size)
+        assertEquals(0, s.handle.indices.size)
+        s.handle.close()
     }
 
     @Test

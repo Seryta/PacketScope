@@ -46,14 +46,19 @@ sealed interface AppState {
     data class Error(val message: String) : AppState
     data class Loaded(
         val sourceName: String,
-        val linkType: LinkType,
-        val frames: List<Frame>,
-        val indices: List<FilterIndex>,
+        /** PCAP 加载产物 + mmap 资源句柄。Phase 3 引入：linkType/frames/indices
+         *  通过 [handle] 暴露，[AppScreen] 用 DisposableEffect(handle) 在切换状态
+         *  时显式 close，避免连续打开多个 PCAP 时 mmap 累积 vmem。 */
+        val handle: PcapHandle,
         val selectedFrame: Frame? = null,
         val showConversations: Boolean = false,
         val followStream: Frame? = null,
         val selectedConversation: Conversation? = null,
-    ) : AppState
+    ) : AppState {
+        val linkType: LinkType get() = handle.linkType
+        val frames: List<Frame> get() = handle.frames
+        val indices: List<FilterIndex> get() = handle.indices
+    }
     /** UDP Exporter 实时模式 */
     data class Streaming(
         val port: Int,
@@ -122,9 +127,7 @@ fun AppScreen(
                 is PcapLoader.Result.Success -> {
                     state = AppState.Loaded(
                         sourceName = name,
-                        linkType = result.linkType,
-                        frames = result.frames,
-                        indices = result.indices,
+                        handle = result.handle,
                     )
                 }
                 is PcapLoader.Result.Failure -> {
@@ -162,6 +165,12 @@ fun AppScreen(
                 error = s.message,
             )
             is AppState.Loaded -> {
+                // LAZY-003: 离开 Loaded 状态时显式 close handle，触发 mmap 释放。
+                // key = handle 确保只有 handle 引用变化（新 PCAP）才重启 effect；
+                // 内部 navigation (s.copy(selectedFrame=...)) 不触发 dispose。
+                DisposableEffect(s.handle) {
+                    onDispose { s.handle.close() }
+                }
                 when {
                     s.followStream != null -> FollowStreamScreen(
                         allFrames = s.frames,
