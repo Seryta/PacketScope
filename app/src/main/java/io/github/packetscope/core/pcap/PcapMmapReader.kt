@@ -6,15 +6,21 @@ import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 
 /**
- * 基于 mmap 的 PCAP 读取器（v0.9）。
+ * 基于 mmap 的 PCAP 读取器（v0.9 引入；v1.1 LAZY-002 改为 true lazy）。
  *
  * 跟 [PcapReader] 解析逻辑完全一致，但 IO 路径走 [FileChannel.map] 把整个文件
  * 映射进进程地址空间——OS 按需 paging，免去 InputStream 在 user-space 反复
  * malloc + memcpy 的 read buffer。对几百 MB PCAP 加载快 + 内存压力低。
  *
- * 注意每个 [RawFrame] 仍持有完整 captured bytes 的 ByteArray（解析时一次 bulk
- * copy 出来），堆压力仍随帧数线性增长——真正的 lazy paging（Frame.data 改成
- * 按需 mmap slice）留 v1.0+ 改造。
+ * **v1.1 lazy 改造**：每个 [RawFrame.data] 不再 ByteArray copy 出 captured bytes，
+ * 而是 yield 一个 [MmapBytes] 视图（zero-copy）。Frame.data 仅持 (parent buffer
+ * ref, offset, length)，heap 上只有元数据。这把同等 PCAP 的 heap 占用从 ~2×
+ * 文件大小降到 ~0.5-1×（只剩 layers + fields）。
+ *
+ * **生命周期**：[MmapBytes] 持 parent 强引用，GC 不会在视图存活时回收 mmap。
+ * [close] 不再主动 unmap（v1.0 round1 的 explicitUnmap 移到 LAZY-003 的
+ * PcapHandle）—— 若立即 unmap，外部还在用的 MmapBytes 视图会 SIGSEGV。
+ * 短期回到 GC + finalizer 自然回收 mmap；显式 unmap 留 LAZY-003 接管。
  *
  * 接口跟 [PcapReader] 对齐 (linkType / snaplen / frames())，让 PcapLoader 内可
  * sealed 选用。
@@ -69,9 +75,10 @@ class PcapMmapReader(channel: FileChannel) : AutoCloseable {
             }
             val bodyStart = cursor + RECORD_HEADER_SIZE
             if (bodyStart + capLen > limit) break  // 截断的 record body 当流结束
-            val data = ByteArray(capLen)
-            val slice = mmap.duplicate().apply { position(bodyStart) }
-            slice.get(data, 0, capLen)
+            // LAZY-002: 不再 ByteArray copy；MmapBytes 持 (mmap, bodyStart, capLen)
+            // 视图，访问时通过 ByteBuffer.duplicate() 拿独立 position view，
+            // 零拷贝，零额外 heap。父 mmap 由 MmapBytes 强引用守 GC。
+            val data: FrameBytes = MmapBytes(mmap, bodyStart, capLen)
             val tsNanos = if (nanoseconds) {
                 tsSec * 1_000_000_000L + tsFrac
             } else {
@@ -82,33 +89,35 @@ class PcapMmapReader(channel: FileChannel) : AutoCloseable {
                 timestampNanos = tsNanos,
                 capturedLength = capLen,
                 originalLength = origLen,
-                data = HeapBytes(data),
+                data = data,
             ))
             cursor = bodyStart + capLen
         }
     }
 
     override fun close() {
-        // MappedByteBuffer 没标准 unmap API（JDK Cleaner 是 sun.misc internal，
-        // Android Q+ 还可能撞 hidden API restriction）。这里 reflection 调一次
-        // Cleaner.clean() best-effort 释放，失败静默 fallback 到 GC + finalizer
-        // 回收 —— v0.6-round7 F-008 deferred 兑现（round1 REFACTOR-002）。
-        // 反复加载大 PCAP 时减少 virtual address space 累积，但不可依赖：
-        // - API 28 grey list（reflection 可用但有警告）
-        // - API 29+ dark list 可能 SecurityException
-        // - 不同 JDK / Conscrypt 字段名差异（some 'cleaner' / others 不存在）
-        runCatching { explicitUnmap(mmap) }
+        // LAZY-002: 移除立即 explicitUnmap(mmap)——MmapBytes 视图仍持父 mmap 强引用
+        // 在 PcapLoader 完成后存活到 Frame 列表整体 GC，提前 unmap 会触发 SIGSEGV。
+        // 显式 unmap 改由 LAZY-003 的 PcapHandle 接管：state 切换时统一释放。
+        // 这里只 close FileChannel（已经 mapped 进地址空间的 buffer 不依赖 channel）；
+        // mmap 由 GC + finalizer 兜底回收 —— 回到 v0.9 之前的回收策略。
         channel.close()
     }
 
-    /** 反射触发 [java.nio.MappedByteBuffer] 内的 cleaner。任何失败都吞掉，
-     *  让 caller 依赖 GC + finalizer 兜底。 */
-    private fun explicitUnmap(buf: java.nio.ByteBuffer) {
-        val cleanerField = buf::class.java.getDeclaredField("cleaner")
-        cleanerField.isAccessible = true
-        val cleaner = cleanerField.get(buf) ?: return
-        val cleanMethod = cleaner::class.java.getMethod("clean")
-        cleanMethod.invoke(cleaner)
+    /** 显式 unmap helper：触发 [java.nio.MappedByteBuffer] 内的 Cleaner.clean()。
+     *  失败静默 fallback 到 GC + finalizer。
+     *  LAZY-003 PcapHandle 在确认所有 Frame 引用都 drop 后调此函数。
+     *  - API 28 grey list（reflection 可用但有警告）
+     *  - API 29+ dark list 可能 SecurityException
+     *  - 不同 JDK / Conscrypt 字段名差异（some 'cleaner' / others 不存在） */
+    internal fun tryExplicitUnmap() {
+        runCatching {
+            val cleanerField = mmap::class.java.getDeclaredField("cleaner")
+            cleanerField.isAccessible = true
+            val cleaner = cleanerField.get(mmap) ?: return@runCatching
+            val cleanMethod = cleaner::class.java.getMethod("clean")
+            cleanMethod.invoke(cleaner)
+        }
     }
 
     companion object {
