@@ -1,5 +1,6 @@
 package io.github.packetscope.ui.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +54,9 @@ private const val ISSUES_URL = "$GITHUB_REPO_URL/issues"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
+    // 拦截系统返回手势，跟 TopAppBar 上的「返回」按钮一样走 onBack 回到上层屏；
+    // 不拦的话系统会直接退出 Activity（与其它内嵌屏不一致）。
+    BackHandler(onBack = onBack)
     Scaffold(
         topBar = {
             TopAppBar(
