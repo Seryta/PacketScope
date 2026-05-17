@@ -367,6 +367,38 @@ PCAP，抛 `IllegalArgumentException: Size exceeds Integer.MAX_VALUE` 或者
 
 ---
 
+### P-22 lazy mmap unmap 与背景线程读 `frame.data` 的 race（**未来易踩**）
+
+**症状**（未来潜在 crash，当前未触发）：背景协程在读 `frame.data`
+（MmapBytes 视图）时，main thread 切 PCAP 触发 `PcapHandle.close()` →
+`reader.tryExplicitUnmap()` 成功 → mmap 被 munmap → 协程下一次访问
+SIGSEGV，**进程闪退无 logcat 栈**。
+
+**根因**：lazy refactor 把 mmap 生命周期从 "channel 关闭即结束" 变成
+"PcapHandle.close 时显式 unmap"。MmapBytes 持父 buffer 强引用挡 GC，
+但**挡不住显式 unmap**——reflection clean 立即释放 native 内存，JVM
+不再校验该 ByteBuffer 是否还有 reader。
+
+**当前没爆炸的原因**（无意中存在的兜底）：
+- Android API 29+ dark list 让 reflection cleaner.clean() 大概率失败 →
+  fallback 到 GC，mmap 长存
+- filter / sort 等帧访问都走同步 `remember { ... }` block，main thread
+  序列化，与 onDispose 不存在并发时序
+
+**正确姿势**：
+- **任何 LaunchedEffect / coroutine 内访问 `frame.data` 的 PR**——
+  先读本条 + ANDROID_PITFALLS 这一节
+- 短期方案：`PcapHandle.close()` 内加 100ms delay（给协程一帧时间退出）
+- 长期方案：MmapBytes 引用计数（AtomicInteger users 归零才真 unmap）或
+  withMmap { ... } reader-lock pattern
+- 不要靠 "reflection unmap 失败" 当并发锁——某天 OEM ROM 放开 hidden API
+  / Android 升级、立刻变 crash 报告
+- 当前 release 不强求修，写进本文件作风险点登记
+
+**关联**：v1.1-round1 F-001、`PcapHandle.kt`、`PcapMmapReader.tryExplicitUnmap`
+
+---
+
 ### P-21 `MappedByteBuffer` 没标准 unmap API，依赖 reflection + GC 兜底
 
 **症状**：反复加载大 PCAP 后 `dumpsys meminfo` 看 PSS / vmem 累积，慢慢
