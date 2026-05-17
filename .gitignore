@@ -1,0 +1,18 @@
+.gradle/
+build/
+local.properties
+# release 签名密码 —— 永远不入库
+keystore.properties
+.idea/
+*.iml
+captures/
+.cxx/
+.kotlin/
+*.apk
+*.aab
+.DS_Store
+
+# Reviewer ↔ Coder CC 之间的信件目录，不入库
+/reviews/
+# docker run -e HOME=/work/.docker-home 的容器 HOME（gradle / robolectric lock 文件）
+/.docker-home/

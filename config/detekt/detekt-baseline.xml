@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ComplexCondition:FollowStreamScreen.kt$v in 0x20..0x7E || v == 0x09 || v == 0x0A || v == 0x0D</ID>
+    <ID>ComplexCondition:FrameDetailScreen.kt$v in 0x20..0x7E || v == 0x09 || v == 0x0A || v == 0x0D</ID>
+    <ID>ComplexCondition:TlsDecryptionPass.kt$TlsDecryptionPass$v in 0x20..0x7E || v == 0x09 || v == 0x0A || v == 0x0D</ID>
+    <ID>CyclomaticComplexMethod:AppScreen.kt$@Composable fun AppScreen( initialUri: Uri? = null, onInitialUriConsumed: () -&gt; Unit = {}, )</ID>
+    <ID>CyclomaticComplexMethod:DnsDissector.kt$DnsDissector$override fun dissect(data: ByteArray, offset: Int): DissectResult?</ID>
+    <ID>CyclomaticComplexMethod:TcpSessionAnalyzer.kt$TcpSessionAnalyzer$private fun analyzeSession(infos: List&lt;TcpInfo&gt;, out: MutableMap&lt;Int, TcpAnalysis&gt;)</ID>
+    <ID>CyclomaticComplexMethod:TlsDecryptionPass.kt$TlsDecryptionPass$fun process(frames: List&lt;Frame&gt;): List&lt;Frame&gt;</ID>
+    <ID>LongMethod:AppScreen.kt$@Composable fun AppScreen( initialUri: Uri? = null, onInitialUriConsumed: () -&gt; Unit = {}, )</ID>
+    <ID>LongMethod:DnsDissector.kt$DnsDissector$override fun dissect(data: ByteArray, offset: Int): DissectResult?</ID>
+    <ID>LongMethod:FollowStreamScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FollowStreamScreen( allFrames: List&lt;Frame&gt;, anchor: Frame, onBack: () -&gt; Unit, )</ID>
+    <ID>LongMethod:FrameDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FrameDetailScreen( frame: Frame, onBack: () -&gt; Unit, onFollowStream: (Frame) -&gt; Unit = {}, )</ID>
+    <ID>LongMethod:FrameListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FrameListScreen( sourceName: String, linkType: LinkType, frames: List&lt;Frame&gt;, onSelect: (Frame) -&gt; Unit, onClose: () -&gt; Unit, onShowConversations: () -&gt; Unit = {}, initialFilter: String = "", /** 文件模式预算的 [FilterIndex]，与 frames 平行；为 null 时（流式模式）filter * 回退到 layer 树遍历，见 [FrameFilter] kdoc */ indices: List&lt;FilterIndex&gt;? = null, /** true 时关闭/返回弹确认对话框（监听模式下避免误退导致丢失实时数据） */ confirmClose: Boolean = false, /** 非 null 时顶栏显示「清空」按钮（监听模式下清空已收 frames 但不停 listener） */ onClear: (() -&gt; Unit)? = null, )</ID>
+    <ID>LongParameterList:FilterIndex.kt$FilterIndex$( val protocols: Set&lt;String&gt;, val srcIp: String?, val dstIp: String?, val srcPort: Int?, val dstPort: Int?, val sniLower: String?, val httpHostLower: String?, /** HTTP Request line 的 path 部分，已小写化（review v0.6-round2 F-007） */ val httpPathLower: String?, val httpMethodUpper: String?, val dnsNamesLower: List&lt;String&gt;, val appNameLower: String?, )</ID>
+    <ID>LongParameterList:FrameListScreen.kt$( sourceName: String, linkType: LinkType, frames: List&lt;Frame&gt;, onSelect: (Frame) -&gt; Unit, onClose: () -&gt; Unit, onShowConversations: () -&gt; Unit = {}, initialFilter: String = "", /** 文件模式预算的 [FilterIndex]，与 frames 平行；为 null 时（流式模式）filter * 回退到 layer 树遍历，见 [FrameFilter] kdoc */ indices: List&lt;FilterIndex&gt;? = null, /** true 时关闭/返回弹确认对话框（监听模式下避免误退导致丢失实时数据） */ confirmClose: Boolean = false, /** 非 null 时顶栏显示「清空」按钮（监听模式下清空已收 frames 但不停 listener） */ onClear: (() -&gt; Unit)? = null, )</ID>
+    <ID>LongParameterList:PcapTestFixtures.kt$PcapTestFixtures$( srcPort: Int, dstPort: Int, payload: ByteArray, seq: Long = 1, ack: Long = 1, flags: Int = 0x18, // PSH+ACK srcIp: ByteArray = DEFAULT_SRC_IP, dstIp: ByteArray = DEFAULT_DST_IP, )</ID>
+    <ID>LoopWithTooManyJumpStatements:FrameFilter.kt$FrameFilter.Sni$for</ID>
+    <ID>LoopWithTooManyJumpStatements:PcapReader.kt$PcapReader$while</ID>
+    <ID>LoopWithTooManyJumpStatements:SslKeyLogParser.kt$SslKeyLogParser$for</ID>
+    <ID>LoopWithTooManyJumpStatements:TlsDecryptionPass.kt$TlsDecryptionPass$for</ID>
+    <ID>LoopWithTooManyJumpStatements:UdpExporterListener.kt$UdpExporterListener$while</ID>
+    <ID>MatchingDeclarationName:AppScreen.kt$AppState</ID>
+    <ID>MaxLineLength:Conversations.kt$ConversationBuilder$val dport = l4.fields.firstOrNull { it.name == FieldNames.DESTINATION_PORT }?.value?.toIntOrNull() ?: return null</ID>
+    <ID>MaxLineLength:Conversations.kt$ConversationBuilder$val ip = frame.layers.firstOrNull { it.protocol == Protocols.IPV4 || it.protocol == Protocols.IPV6 } ?: return null</ID>
+    <ID>MaxLineLength:Conversations.kt$ConversationBuilder$val l4 = frame.layers.firstOrNull { it.protocol == Protocols.TCP || it.protocol == Protocols.UDP } ?: return null</ID>
+    <ID>MaxLineLength:DnsDissector.kt$DnsDissector$"0x%04x (${if (isResponse) "response" else "query"}, opcode=${opcodeName(opcode)}, rcode=${rcodeName(rcode)})".format(flags)</ID>
+    <ID>MaxLineLength:FrameListScreen.kt$HelpItem("(tcp or udp) and not port 53", stringResource(R.string.filter_example_tcpudp_no_dns), "(tcp or udp) and not port 53")</ID>
+    <ID>MaxLineLength:FrameListScreen.kt$HelpItem("app chrome and dns.name google", stringResource(R.string.filter_example_chrome_dns), "app chrome and dns.name google")</ID>
+    <ID>MaxLineLength:FrameListScreen.kt$HelpItem("host 8.8.8.8 or host 8.8.4.4", stringResource(R.string.filter_example_google_dns), "host 8.8.8.8 or host 8.8.4.4")</ID>
+    <ID>MaxLineLength:FrameListScreen.kt$HelpItem("http.method POST and url login", stringResource(R.string.filter_example_post_login), "http.method POST and url login")</ID>
+    <ID>MaxLineLength:FrameListScreen.kt$HelpItem("tls and sni github", stringResource(R.string.filter_example_github_tls), "tls and sni github")</ID>
+    <ID>MaxLineLength:FrameListScreen.kt$HelpItem("udp and port 53", stringResource(R.string.filter_example_dns_query), "udp and port 53")</ID>
+    <ID>MaxLineLength:TlsDecryptionPass.kt$TlsDecryptionPass$val dport = tcp.fields.firstOrNull { it.name == FieldNames.DESTINATION_PORT }?.value?.toIntOrNull() ?: return null</ID>
+    <ID>MaxLineLength:TlsDecryptionPass.kt$TlsDecryptionPass$val ip = frame.layers.firstOrNull { it.protocol == Protocols.IPV4 || it.protocol == Protocols.IPV6 } ?: return null</ID>
+    <ID>NestedBlockDepth:FilterIndex.kt$FilterIndex.Companion$fun build(frame: Frame): FilterIndex</ID>
+    <ID>NestedBlockDepth:PcapLoader.kt$PcapLoader$private fun querySize(resolver: ContentResolver, uri: Uri): Long?</ID>
+    <ID>NestedBlockDepth:Pipeline.kt$Pipeline$fun process(raw: RawFrame): Frame</ID>
+    <ID>NestedBlockDepth:TcpSessionAnalyzer.kt$TcpSessionAnalyzer$private fun analyzeSession(infos: List&lt;TcpInfo&gt;, out: MutableMap&lt;Int, TcpAnalysis&gt;)</ID>
+    <ID>NestedBlockDepth:TlsDecryptionPass.kt$TlsDecryptionPass$fun process(frames: List&lt;Frame&gt;): List&lt;Frame&gt;</ID>
+    <ID>ReturnCount:Conversations.kt$ConversationBuilder$private fun extractTuple(frame: Frame): Tuple?</ID>
+    <ID>ReturnCount:DnsDissector.kt$DnsDissector$override fun dissect(data: ByteArray, offset: Int): DissectResult?</ID>
+    <ID>ReturnCount:FollowStreamScreen.kt$private fun tupleOf(frame: Frame): Pair&lt;String, String&gt;?</ID>
+    <ID>ReturnCount:QuicDissector.kt$QuicDissector$override fun dissect(data: ByteArray, offset: Int): DissectResult?</ID>
+    <ID>ReturnCount:TlsDecryptionPass.kt$TlsDecryptionPass$private fun endpointsOf(frame: Frame): Pair&lt;Endpoint, Endpoint&gt;?</ID>
+    <ID>ReturnCount:TlsDissector.kt$TlsDissector$private fun extractSni(data: ByteArray, bodyStart: Int, bodyLen: Int): String?</ID>
+    <ID>ThrowsCount:FilterParser.kt$FilterParser$private fun parseAtom(): FrameFilter</ID>
+    <ID>UnusedParameter:QuicDissector.kt$QuicDissector$version: Long</ID>
+    <ID>UnusedPrivateProperty:DnsDissector.kt$DnsDissector$i</ID>
+  </CurrentIssues>
+</SmellBaseline>

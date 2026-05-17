@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  PacketScope 启动图：放大镜内一只眼睛 — 跟 PCAPdroid「抓包」形成「抓→看」搭配。
+  设计参考 Material Visibility / Phosphor Eye：实心杏仁形 + 背景色挖空瞳孔 + 白点高光。
+  Adaptive icon viewport 108×108，可见 safe zone 在中央 66×66。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 放大镜镜片（白色环） -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
+        android:fillColor="#00000000"
+        android:pathData="M 72,50 A 22,22 0 1,1 28,50 A 22,22 0 1,1 72,50 Z" />
+
+    <!-- 放大镜手柄 -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:pathData="M 67,67 L 80,80" />
+
+    <!-- 杏仁形眼睛（白色实心，铺满镜片内部 ~73%） -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 34,50 a 16,8 0 1,0 32,0 a 16,8 0 1,0 -32,0 Z" />
+
+    <!-- 瞳孔：用背景色挖空，比例 ~瞳孔半径 / 杏仁高 = 5.5 / 16 = 0.69（接近 Material 风格） -->
+    <path
+        android:fillColor="#6750A4"
+        android:pathData="M 50,50 m -5.5,0 a 5.5,5.5 0 1,0 11,0 a 5.5,5.5 0 1,0 -11,0" />
+
+    <!-- 眼神光（白色实心小点，让眼睛有神） -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 50,50 m -1.6,0 a 1.6,1.6 0 1,0 3.2,0 a 1.6,1.6 0 1,0 -3.2,0" />
+
+</vector>

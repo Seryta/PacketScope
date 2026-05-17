@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ (API 31+) 备份 / 设备迁移规则。
+  Android 默认已经把内 cache 和外 cache 排除在 backup 之外（参见
+  Android backup defaults 文档），所以这里**不重复**写 `domain=root path=cache/`
+  这种 phantom 规则。
+
+  当前 KeyLogStore 不落盘，没有显式排除项。等未来落 lazy paging 索引 /
+  最近 PCAP 快照时再加具体路径（review v0.6-round3 F-005 留的注释）：
+
+      <exclude domain="root" path="frame_cache/" />
+      <exclude domain="database" path="pcap_index.db" />
+-->
+<data-extraction-rules>
+    <cloud-backup />
+    <device-transfer />
+</data-extraction-rules>

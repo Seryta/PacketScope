@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  通知栏 smallIcon：Android 要求纯白 alpha mask。
+  全部用 fillColor 实心 path，不用 strokeWidth —— 部分 ROM 的通知栏渲染
+  管线对 vector stroke 支持不完整，会掉到默认系统图标。
+  形态：放大镜（环+手柄）+ 中央瞳孔点；evenOdd fillType 让内圆把环挖出来。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="
+            M10,2 A8,8 0 1,0 10,18 A8,8 0 1,0 10,2 Z
+            M10,4.5 A5.5,5.5 0 1,1 10,15.5 A5.5,5.5 0 1,1 10,4.5 Z
+            M14.8,15.6 L20.5,21.3 L21.6,20.2 L15.9,14.5 Z
+            M10,10 m -1.6,0 a 1.6,1.6 0 1,0 3.2,0 a 1.6,1.6 0 1,0 -3.2,0
+        " />
+
+</vector>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 11 及以下兼容的旧 backup 规则（fullBackupContent）。
+  Android 12+ 走 data_extraction_rules.xml；两份并存，系统按 SDK 选用。
+
+  同样不写 phantom rule —— Android 默认已排除 cache/。
+  未来落盘项加具体 path（见 data_extraction_rules.xml 注释）。
+-->
+<full-backup-content />

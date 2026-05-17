@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      ── 权限清单（每条都核对过必要性，去掉会引起运行时崩溃或被系统拒绝）──
+
+      INTERNET：构造 DatagramSocket 必需。Android 把所有 socket 操作归在
+      INTERNET 下，即使只是 bind 本机端口接收 PCAPdroid Exporter，没有
+      这个权限也会抛 SecurityException。
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
+      FOREGROUND_SERVICE：调用 startForeground() 必需，否则 SecurityException。
+      我们用 ForegroundService 持有 UDP socket，配合系统通知保活。
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <!--
+      FOREGROUND_SERVICE_DATA_SYNC：Android 14 (API 34) 起 ForegroundService
+      按 type 拆子权限，我们 service 标 foregroundServiceType="dataSync"，
+      没这条系统在 API 34+ 直接拒绝启动。
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <!--
+      POST_NOTIFICATIONS：Android 13 (API 33) 起需要 runtime 申请；
+      ForegroundService 必须显示通知，没此权限通知不可见但 service 仍跑。
+      MainActivity.onCreate 里向用户申请。
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!--
+      没用到的权限（明确不要加）：
+      - READ/WRITE_EXTERNAL_STORAGE：我们用 Storage Access Framework 的
+        OpenDocument，contentResolver 拿 URI，不直接访问 /sdcard。
+      - 剪贴板：ClipboardManager / Compose LocalClipboardManager 不需要权限。
+      - 网络抓包相关（VpnService 等）：抓包是 PCAPdroid 的事，我们只解析。
+    -->
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PacketScope">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <!-- LAUNCHER intent-filter 不需要 <data> URL；lint AppLinkUrlError 在这里
+                 是已知误报，显式 ignore 让意图前置到代码而不是藏 baseline
+                 （review v0.6-round4 F-005） -->
+            <intent-filter tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- PCAP MIME 类型；PCAPdroid「分享」一般标 vnd.tcpdump.pcap。
+                 注意：暂不支持 PCAPng（application/x-pcapng），所以这里不声明，
+                 避免让系统把 .pcapng 文件分给我们结果给用户报模糊错误 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="application/vnd.tcpdump.pcap" />
+            </intent-filter>
+
+            <!-- 文件管理器多半给 application/octet-stream，靠扩展名兜底。
+                 同样只接 .pcap，不接 .pcapng -->
+            <intent-filter android:label="@string/open_pcap_action">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.pcap" />
+                <data android:pathPattern=".*\\..*\\.pcap" />
+            </intent-filter>
+
+            <!-- 接收其他应用「分享」（ACTION_SEND）。
+                 PCAPdroid 用 application/cap，其它工具可能用 vnd.tcpdump.pcap -->
+            <intent-filter android:label="@string/open_pcap_action">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/cap" />
+                <data android:mimeType="application/vnd.tcpdump.pcap" />
+            </intent-filter>
+
+        </activity>
+
+        <service
+            android:name=".service.UdpExporterService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+    </application>
+
+</manifest>

@@ -1,0 +1,58 @@
+# detekt 配置 —— 覆盖默认规则的项目级调整。
+# 完整规则集见 https://detekt.dev/docs/rules/overview/。
+
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+# Compose 函数命名 / 长函数等让步给现实代码风格
+style:
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+    excludePackageStatements: true
+    excludeCommentStatements: true
+  MagicNumber:
+    active: false  # 网络协议代码大量魔数（端口、magic、TLS record type 等），改用常量收敛在 Protocols/FieldNames
+  ReturnCount:
+    active: true
+    max: 6  # FilterParser parseAtom() 多 return 是合理的
+  WildcardImport:
+    active: true
+    excludeImports:
+      - 'androidx.compose.*'
+
+complexity:
+  TooManyFunctions:
+    active: false  # Compose UI 文件函数数多是预期
+  LongMethod:
+    active: true
+    threshold: 100
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 20
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 10
+
+naming:
+  FunctionNaming:
+    active: true
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'  # Compose @Composable 大写开头是惯例
+  TopLevelPropertyNaming:
+    active: true
+    constantPattern: '[A-Z][_A-Z0-9]*'
+
+# Compose @Composable 函数返回 Unit 可以不写
+empty-blocks:
+  EmptyFunctionBlock:
+    active: true
+    ignoreOverridden: true
+
+# 项目大量用 require/check 守边界
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+    exceptionNames:
+      - 'Error'
+      - 'Throwable'
