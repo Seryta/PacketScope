@@ -1,6 +1,7 @@
 package io.github.packetscope.perf
 
 import io.github.packetscope.core.PcapTestFixtures
+import io.github.packetscope.core.dissector.Pipeline
 import io.github.packetscope.core.pcap.HeapBytes
 import io.github.packetscope.core.pcap.MmapBytes
 import io.github.packetscope.core.pcap.PcapMmapReader
@@ -52,6 +53,38 @@ class MemoryProfileTest {
         frames.forEach { f ->
             assertTrue("frame ${f.index} 应是 MmapBytes 视图", f.data is MmapBytes)
             assertEquals("frame.size 应等 captured", 1500, f.data.size)
+        }
+    }
+
+    /**
+     * Pipeline.process 入口短暂材料化整帧 ByteArray 给 dissector 链；
+     * 出口的 Frame.data 必须仍是原 FrameBytes 视图（不被 asByteArray 引用泄漏
+     * 进 Frame）——否则 lazy 收益全失，1 GB PCAP load 时 raw bytes 还会进
+     * heap。本 case 用 Pipeline 走真实 dissect path 后断言 frame.data 类型。
+     * v1.1-round1 F-004。
+     */
+    @Test
+    fun `Pipeline 处理后 Frame 仍持 MmapBytes 视图`() {
+        val pcap = buildLargePcap(packetCount = 100, packetSize = 1500)
+        val file = tmp.newFile("pipeline.pcap")
+        file.writeBytes(pcap)
+
+        val processedFrames = RandomAccessFile(file, "r").use { raf ->
+            PcapMmapReader(raf.channel).use { reader ->
+                val pipeline = Pipeline(reader.linkType)
+                reader.frames().toList().map(pipeline::process)
+            }
+        }
+
+        assertEquals(100, processedFrames.size)
+        processedFrames.forEach { f ->
+            assertTrue(
+                "Pipeline 后 frame ${f.index}.data 应仍是 MmapBytes，未被 " +
+                    "asByteArray 中间变量泄漏成 HeapBytes",
+                f.data is MmapBytes,
+            )
+            // 同时验证 layers 真的解出来了（否则视图保住但 dissect 没跑也 vacuous）
+            assertTrue("frame ${f.index} 应至少有一个 layer", f.layers.isNotEmpty())
         }
     }
 
