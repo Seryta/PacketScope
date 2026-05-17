@@ -16,3 +16,6 @@ captures/
 /reviews/
 # docker run -e HOME=/work/.docker-home 的容器 HOME（gradle / robolectric lock 文件）
 /.docker-home/
+# Roborazzi verify 临时产物（每次重生成）；只 baseline *.png 入库
+app/snapshots/*_actual.png
+app/snapshots/*_compare.png
