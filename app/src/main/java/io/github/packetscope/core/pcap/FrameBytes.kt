@@ -59,6 +59,17 @@ class MmapBytes(
     private val byteOffset: Int,
     override val size: Int,
 ) : FrameBytes {
+    /**
+     * 单字节读：用 absolute-position 变体 [java.nio.ByteBuffer.get] 不修改
+     * buffer position，**不需要 duplicate()**。
+     *
+     * `ByteBuffer` 类总体被 JVM spec 标 not thread-safe，但 absolute-position
+     * `get(int)` 在所有 JVM 实现里都是 memory load 级 atomic；底层是 mmap'd
+     * 内存，OS 级 read 也保证原子——跨线程 hot-path 读单字节 de facto 安全。
+     *
+     * Hot path 不 duplicate 是有意的：dissector / ByteReader.u16Be / u32Be
+     * 每帧 N 次 get，duplicate() 一次 ~10ns 累积可量化（v1.1-round1 F-003）。
+     */
     override fun get(index: Int): Byte {
         if (index < 0 || index >= size) throw IndexOutOfBoundsException("index=$index size=$size")
         return parent.get(byteOffset + index)
