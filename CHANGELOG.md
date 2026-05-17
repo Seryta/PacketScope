@@ -10,10 +10,7 @@ README Roadmap 表 + `app/build.gradle.kts` `versionCode` 三处同步——
 
 ## [Unreleased]
 
-> 本段汇总 v1.1 round 0 + round 1 全部已落地工作。tag `v1.1.0`
-> 触发 release workflow 时，把 `[Unreleased]` 改成 `[1.1.0] - YYYY-MM-DD`
-> 并同步 `app/build.gradle.kts`（versionCode 13 → 14、versionName
-> 0.9.0 → 1.1.0）和 README「当前状态」/Roadmap。详见 RELEASE.md §6。
+## [1.1.0] - 2026-05-17
 
 ### Added
 - **True lazy `Frame.data`**（v1.1 round0 LAZY-001~005）：mmap 路径下
@@ -58,6 +55,13 @@ README Roadmap 表 + `app/build.gradle.kts` `versionCode` 三处同步——
 ### Fixed
 - `PcapHandle.close()` 用 `AtomicBoolean.compareAndSet` 替原 `@Volatile` +
   check-then-set，保证 `onClose` 严格 exactly-once（v1.1 round1 F-002）
+- `FrameFilter.Text` 支持 UTF-8 中文 payload：pattern 与 frame.data 走
+  同一字节级表示（pattern.toByteArray(UTF-8) → ISO_8859_1 decode）
+- 「关于」屏拦截系统手势返回 → onBack（与其它内嵌屏一致）
+- 过滤语法 HelpItem 点击替换 query 后光标自动跳到末尾（用 TextFieldValue
+  overload 显式控 selection）
+- 过滤输入框（FilterBar + FilterHelpDialog）加 X 清除按钮（query 非空才显示）
+- FilterHelpDialog IME action = Search，回车直接 dismiss 返回列表
 
 ## [0.9.0] - 2026-05-17
 

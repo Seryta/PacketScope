@@ -30,7 +30,7 @@ Android 端 PCAP 查看器。**专做查看，不抓包。**
 到 [Releases](https://github.com/Seryta/PacketScope/releases) 下载最新
 `app-release.apk`，启用「未知来源」安装。或加入 F-Droid 仓库（计划中）。
 
-## 当前状态：v0.9.0（≈ Roadmap v0.9）
+## 当前状态：v1.1.0（≈ Roadmap v1.1）
 
 已实现：
 

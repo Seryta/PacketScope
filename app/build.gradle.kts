@@ -24,11 +24,12 @@ android {
         minSdk = 26
         targetSdk = 36
         // versionCode 严格递增，Play/F-Droid 用它判 OTA 升级。下次 release
-        // 至少 +1。当前对齐 README "v0.9.0" 状态。
-        // v0.6→8, v0.7→9, v0.8a→10, v0.8b→11, v0.8c→12, v0.9→13 —— review
-        // v0.6-round7 F-001 把 v0.7..v0.9 漏 release 的版本一次性补上。
-        versionCode = 13
-        versionName = "0.9.0"
+        // 至少 +1。当前对齐 README "v1.1.0" 状态。
+        // v0.6→8, v0.7→9, v0.8a→10, v0.8b→11, v0.8c→12, v0.9→13,
+        // v1.1→14（v1.0 公开仓库收尾未单独 release，直接 promote 到 v1.1.0
+        // 同时含 lazy refactor + 1 GB 上限）
+        versionCode = 14
+        versionName = "1.1.0"
     }
 
     // 项目级 debug keystore：保证每次构建签名一致，覆盖安装不冲突

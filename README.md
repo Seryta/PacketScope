@@ -40,7 +40,7 @@ Download the latest `app-release.apk` from
 [Releases](https://github.com/Seryta/PacketScope/releases) and enable
 "Install from unknown sources". F-Droid repository inclusion is planned.
 
-## Current status: v0.9.0 (≈ Roadmap v0.9)
+## Current status: v1.1.0 (≈ Roadmap v1.1)
 
 Shipped:
 
