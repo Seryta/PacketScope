@@ -196,10 +196,21 @@ sealed interface FrameFilter {
     }
 
     /** 帧 raw bytes 当 Latin-1 字符串后子串包含；二进制载荷的文本片段都能命中。
-     *  注：未索引化（O(n × frame_size)），大列表上注意性能。 */
+     *  注：未索引化（O(n × frame_size)），大列表上注意性能。
+     *
+     *  **中文 / 多字节支持**：frame.data 按 ISO_8859_1 解码（每字节 → `\u00XX`
+     *  char）；pattern 也要走同样的字节级表示，否则 UTF-16 中文 char 跟
+     *  Latin-1 字节序列对不上、永远 0 命中。做法：pattern → UTF-8 bytes →
+     *  ISO_8859_1 重新解码 → 跟 haystack 一致的字节级字符序列。
+     *
+     *  ASCII pattern 兼容：UTF-8 编码与 ASCII 一致，ISO_8859_1 解 ASCII 字节
+     *  无变化，行为跟改前一致；`ignoreCase = true` 对 ASCII 字节生效，对
+     *  非 ASCII bytes（≥ 0x80）lowercase 是 no-op，不引入误匹配。 */
     data class Text(val pattern: String) : FrameFilter {
+        private val needle: String =
+            String(pattern.toByteArray(Charsets.UTF_8), Charsets.ISO_8859_1)
         override fun matches(frame: Frame, index: FilterIndex?): Boolean =
-            frame.data.decodeToString(Charsets.ISO_8859_1).contains(pattern, ignoreCase = true)
+            frame.data.decodeToString(Charsets.ISO_8859_1).contains(needle, ignoreCase = true)
     }
 
     data class And(val left: FrameFilter, val right: FrameFilter) : FrameFilter {

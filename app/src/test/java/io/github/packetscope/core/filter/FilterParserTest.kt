@@ -265,6 +265,25 @@ class FilterParserTest {
         assertFalse(FilterParser.parse("text NotInTheData").matches(httpFrame))
     }
 
+    @Test
+    fun `text 支持 UTF-8 中文 payload`() {
+        // pattern (UTF-16 Kotlin String) 跟 frame.data (mmap 字节) 必须走同
+        // 一字节级表示才能匹配——FrameFilter.Text 内 pattern.toByteArray(UTF-8)
+        // 后按 ISO_8859_1 重打成 char，跟 frame.data.decodeToString(ISO_8859_1)
+        // 对齐。本测验证这条 contract。
+        val chineseBody = "POST /api HTTP/1.1\r\nHost: ex.com\r\n\r\n你好世界".toByteArray(Charsets.UTF_8)
+        val chineseFrame = buildFrame(PcapTestFixtures.ethIpv4Tcp(
+            srcPort = 51234, dstPort = 80, seq = 1, payload = chineseBody))
+        assertTrue("中文 payload 应被匹配",
+            FilterParser.parse("text 你好").matches(chineseFrame))
+        assertTrue("中文整段子串",
+            FilterParser.parse("text 世界").matches(chineseFrame))
+        assertFalse("不存在的中文子串",
+            FilterParser.parse("text 再见").matches(chineseFrame))
+        // ASCII case-insensitive 兼容性回归：ASCII pattern 行为不变
+        assertTrue(FilterParser.parse("text host").matches(chineseFrame))
+    }
+
     private fun buildFrame(rawPacket: ByteArray): Frame {
         val pcap = PcapTestFixtures.build(linkType = 1, packets = listOf(rawPacket))
         return PcapReader(ByteArrayInputStream(pcap)).use { reader ->
