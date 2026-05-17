@@ -73,7 +73,8 @@ Shipped:
   (uid / appname + CRC32)
 - **External intent integration**: open via PCAPdroid share
   (`ACTION_SEND application/cap`), file manager, or `.pcap` association
-- **Large files**: mmap-based reader, file size limit raised to 500 MB
+- **Large files**: mmap-based reader with true lazy `Frame.data` (zero-copy
+  views over the mapped buffer); file size limit **up to 1 GB**
 
 ## Usage
 
@@ -105,7 +106,9 @@ Shipped:
 | v0.8b | TLS 1.2 / other AEADs / QUIC Initial decryption | ✅ |
 | v0.8c | TCP reassembly + HTTP cross-segment body parsing | ✅ |
 | v0.9 | Lazy paging / mmap large file load (50 MB → 500 MB) | ✅ |
-| v1.0 | True lazy `Frame.data` (mmap slice on demand, GB-scale PCAP) | ⏭️ |
+| v1.0 | Public-ready hardening: licensing / CI / release / privacy / docs | ✅ |
+| v1.1 | True lazy `Frame.data` (mmap slice on demand, 1 GB PCAP) | ✅ |
+| v2.0 | Multi-segment mmap for > 2 GB PCAP + metadata streaming | ⏭️ |
 
 ## Build
 

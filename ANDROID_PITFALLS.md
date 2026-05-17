@@ -344,6 +344,50 @@ fun clear() {
 
 ---
 
+## 大文件 / mmap
+
+### P-20 单个 `MappedByteBuffer` 上限 ~2 GB（Int.MAX_VALUE）
+
+**症状**：尝试 `FileChannel.map(MODE_READ_ONLY, 0, fileSize)` 对 > 2 GB
+PCAP，抛 `IllegalArgumentException: Size exceeds Integer.MAX_VALUE` 或者
+`position()` 截断到 Int 后访问越界。
+
+**根因**：`MappedByteBuffer extends ByteBuffer`，`position` / `limit` /
+`capacity` 都是 `int`。`FileChannel.map` 第三个参数虽是 `long`，实际只
+接受 ≤ Int.MAX_VALUE (~2.147 GB)。
+
+**正确姿势**：
+- ≤ 2 GB：单 buffer 直接 map（v1.1 `PcapMmapReader` 走这条路径）
+- > 2 GB：必须**多段 mmap**——把文件按 1 GB 切片，每段一个
+  `MappedByteBuffer`，frame 跨段时拼接（PcapMultiMapReader，v2.0 待办）
+- 当前实现 `PcapMmapReader.init` 显式拒绝 > Int.MAX_VALUE 文件，
+  IOException 友好失败
+
+**关联**：v1.1-round0 LAZY-005
+
+---
+
+### P-21 `MappedByteBuffer` 没标准 unmap API，依赖 reflection + GC 兜底
+
+**症状**：反复加载大 PCAP 后 `dumpsys meminfo` 看 PSS / vmem 累积，慢慢
+压系统内存。
+
+**根因**：JDK `MappedByteBuffer.cleaner` 是 `sun.misc.Cleaner`，**没公开
+unmap API**。Android API 28+ 还把 cleaner 字段放进 hidden API restriction
+（28 grey list / 29+ dark list）。GC + finalizer 会自然回收 mmap，但时机
+不可控，大文件场景下延迟显著。
+
+**正确姿势**：
+- 用 reflection best-effort 调 `cleaner.clean()`，`runCatching` 兜底失败
+- v1.1 LAZY-003 引入 `PcapHandle`：UI state 切换时显式 close → 触发
+  reflection unmap（成功→秒级释放；失败→GC fallback，跟 v0.9 行为一致）
+- **Frame.data 还在使用时绝对不能 unmap**——MmapBytes 视图持父 buffer
+  强引用，GC 不会过早回收；显式 unmap 必须等所有 frame 引用 drop
+
+**关联**：v0.6-round7 F-008、v1.0-round1 REFACTOR-002、v1.1-round0 LAZY-003
+
+---
+
 ## 速查表
 
 | 你要做 | 想这些 |

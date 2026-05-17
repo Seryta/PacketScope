@@ -10,6 +10,22 @@ README Roadmap 表 + `app/build.gradle.kts` `versionCode` 三处同步——
 
 ## [Unreleased]
 
+### Added
+- **True lazy `Frame.data`**（v1.1 LAZY-001~005）：mmap 路径下 Frame.data
+  改成 `MmapBytes` 视图（`(parent ByteBuffer, offset, length)`），zero-copy
+  访问。`FrameBytes` sealed interface 同时保留 `HeapBytes`（InputStream
+  路径 / PCAPdroid UDP listener）实现，dissector signature 不动
+- **`PcapHandle` 显式 mmap 生命周期**：`PcapLoader.Result.Success` 持
+  handle，AppScreen 用 `DisposableEffect(handle)` 在 state 切换时显式
+  unmap 旧 mmap，避免连续打开多个 PCAP 时 vmem 累积
+- `MemoryProfileTest`：JVM 侧验证 mmap 路径 frame.data 是 MmapBytes 视图
+  + heap 增量 < 文件 50%；QA_CHECKLIST §N.1 补真机 `dumpsys meminfo`
+  流程
+
+### Changed
+- 单次加载体积上限 **500 MB → 1 GB**（lazy refactor 让 raw bytes 不再
+  占 heap；2 GB 需要多段 mmap，留 v2.0）
+
 ## [0.9.0] - 2026-05-17
 
 ### Added

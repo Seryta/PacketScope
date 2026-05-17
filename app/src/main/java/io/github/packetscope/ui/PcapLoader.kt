@@ -42,11 +42,15 @@ import java.nio.channels.FileChannel
  */
 object PcapLoader {
 
-    /** 单次加载体积上限。v0.9 起 mmap 路径让 IO 不走 user-space buffer，
-     *  但解析后所有 Frame.layers 仍持堆内引用——上限提到 500 MB，覆盖大多数
-     *  实际抓包场景。GB 级要走真正的 lazy paging (Frame.data 改 mmap slice)，
-     *  留 v1.0+ 改造。 */
-    const val MAX_FILE_BYTES: Long = 500L * 1024 * 1024
+    /** 单次加载体积上限。v0.9 引入 mmap IO；v1.1 LAZY-002 让 Frame.data 真 lazy
+     *  （MmapBytes 视图零拷贝），raw bytes 不再占 heap——只剩 layers / fields /
+     *  indices 元数据是堆压力来源。本 commit (LAZY-005) 把上限从 500 MB 推到
+     *  1 GB，给同样元数据 budget 留 ~2 倍 PCAP 体积空间。
+     *
+     *  2 GB 留 v2.0：[java.nio.MappedByteBuffer] 单 buffer 索引上限 Int.MAX_VALUE
+     *  (~2.1 GB)，> 2 GB 需要多段 mmap (PcapMultiMapReader)；GB 级 metadata 树
+     *  本身也开始压 heap。详见 ANDROID_PITFALLS.md。 */
+    const val MAX_FILE_BYTES: Long = 1L * 1024 * 1024 * 1024
 
     /**
      * 加载并解析 PCAP 文件。所有 user-facing 错误消息走 [Context.getString]

@@ -67,7 +67,9 @@ Android 端 PCAP 查看器。**专做查看，不抓包。**
 | v0.8b | TLS 1.2 / 其它 AEAD / QUIC Initial 解密 | ✅ |
 | v0.8c | TCP 重组 + HTTP 跨 segment body 解析 | ✅ |
 | v0.9 | lazy paging / mmap 大文件加载（拆 50MB → 500MB） | ✅ |
-| v1.0 | Frame.data 真正 lazy（mmap slice 按需读，支持 GB 级 PCAP） | ⏭️ |
+| v1.0 | 公开仓库收尾：licensing / CI / release / privacy / 文档 | ✅ |
+| v1.1 | Frame.data 真正 lazy（mmap slice 按需读，单文件上限 1 GB） | ✅ |
+| v2.0 | 多段 mmap 突破 2 GB + metadata 流式 dissect | ⏭️ |
 
 ## 构建
 

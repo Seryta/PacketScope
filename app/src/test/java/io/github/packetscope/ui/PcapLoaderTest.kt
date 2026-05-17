@@ -46,17 +46,20 @@ class PcapLoaderTest {
 
     @Test
     fun `文件大小超阈值返回 Failure error_file_too_large`() = runBlocking {
-        // v0.9 拆 50MB → 500MB；用 600MB sample 触发上限
+        // v0.9 拆 50MB → 500MB；v1.1 LAZY-005 拆 500MB → 1GB。用 2GB sample
+        // 触发上限——2GB 也是 v2.0 多段 mmap 之前的硬边界
+        val limitMb = (PcapLoader.MAX_FILE_BYTES / 1024 / 1024).toInt()
+        val actualMb = limitMb + 1024   // 超上限 1 GB
         val uri = registerStreamWithSize(
             "huge.pcap", ByteArray(0),
-            sizeBytes = 600L * 1024 * 1024,
+            sizeBytes = actualMb.toLong() * 1024 * 1024,
         )
         val result = PcapLoader.load(context, uri)
         assertTrue("超阈值应直接 Failure，不读 stream",
             result is PcapLoader.Result.Failure)
         val msg = (result as PcapLoader.Result.Failure).message
-        assertTrue("message 应含 600（实际大小）", msg.contains("600"))
-        assertTrue("message 应含 500（阈值）", msg.contains("500"))
+        assertTrue("message 应含实际大小 $actualMb", msg.contains("$actualMb"))
+        assertTrue("message 应含阈值 $limitMb", msg.contains("$limitMb"))
     }
 
     @Test
